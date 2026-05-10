@@ -1,0 +1,103 @@
+"use client";
+
+import type { CheckResult } from "@/lib/types";
+
+const CheckIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12l4 4L19 7" />
+  </svg>
+);
+const XIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 6l12 12M18 6L6 18" />
+  </svg>
+);
+const WarnIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 9v4M12 17h.01" />
+    <path d="M10.3 3.86l-8.1 14a2 2 0 0 0 1.7 3h16.2a2 2 0 0 0 1.7-3l-8.1-14a2 2 0 0 0-3.4 0z" />
+  </svg>
+);
+const BulbIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 18h6" />
+    <path d="M10 22h4" />
+    <path d="M12 2a7 7 0 0 0-4 12.7c.7.5 1 1.3 1 2.1V18h6v-1.2c0-.8.3-1.6 1-2.1A7 7 0 0 0 12 2z" />
+  </svg>
+);
+
+const STATUS = {
+  pass: {
+    Icon: CheckIcon,
+    iconBg: "bg-emerald-500",
+    iconText: "text-white",
+    pillBg: "bg-emerald-50",
+    pillText: "text-emerald-700",
+    pillRing: "ring-emerald-200",
+    label: "Pass",
+    leftBar: "bg-emerald-500",
+  },
+  fail: {
+    Icon: XIcon,
+    iconBg: "bg-rose-500",
+    iconText: "text-white",
+    pillBg: "bg-rose-50",
+    pillText: "text-rose-700",
+    pillRing: "ring-rose-200",
+    label: "Fail",
+    leftBar: "bg-rose-500",
+  },
+  warn: {
+    Icon: WarnIcon,
+    iconBg: "bg-amber-400",
+    iconText: "text-white",
+    pillBg: "bg-amber-50",
+    pillText: "text-amber-700",
+    pillRing: "ring-amber-200",
+    label: "Warning",
+    leftBar: "bg-amber-400",
+  },
+} as const;
+
+export default function ChecklistItem({ check }: { check: CheckResult }) {
+  const s = STATUS[check.status];
+  const Icon = s.Icon;
+  return (
+    <li id={`check-${check.id}`} className="scroll-mt-24 group relative overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/70 hover:ring-slate-300 transition">
+      <span className={`absolute left-0 top-0 bottom-0 w-1 ${s.leftBar}`} />
+      <div className="p-5 pl-6 flex gap-4">
+        <div className={`h-9 w-9 shrink-0 rounded-xl ${s.iconBg} ${s.iconText} grid place-items-center shadow-sm`}>
+          <Icon />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <p className="font-semibold text-slate-900 leading-tight">{check.label}</p>
+            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 ${s.pillBg} ${s.pillText} ${s.pillRing}`}>
+              <span className="h-1.5 w-1.5 rounded-full bg-current" />
+              {s.label}
+            </span>
+          </div>
+          <p className="text-sm text-slate-600 mt-1">{check.detail}</p>
+          {check.recommendation && (
+            <div className="mt-3 rounded-xl bg-slate-50 ring-1 ring-slate-100 px-3 py-2.5 text-sm text-slate-700">
+              <div className="flex gap-2 items-start">
+                <span className="text-brand-500 mt-0.5 shrink-0">
+                  <BulbIcon />
+                </span>
+                <p className="whitespace-pre-line">
+                  <span className="font-medium text-slate-900">Gợi ý: </span>
+                  {check.recommendation}
+                </p>
+              </div>
+              {check.example && (
+                <pre className="mt-2.5 ml-6 overflow-x-auto rounded-lg bg-white ring-1 ring-slate-200 px-3 py-2 text-[12.5px] leading-relaxed font-mono text-slate-700 whitespace-pre-wrap">
+{check.example}
+                </pre>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </li>
+  );
+}
