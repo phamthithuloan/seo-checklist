@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useAuth } from "@/lib/auth-context";
 
 type IconProps = { className?: string };
 
@@ -39,8 +40,16 @@ const ChevronIcon = ({ className }: IconProps) => (
     <path d="M9 6l6 6-6 6" />
   </svg>
 );
+const LogoutIcon = ({ className }: IconProps) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <path d="M16 17l5-5-5-5M21 12H9" />
+  </svg>
+);
 
 /* ───────── Data ───────── */
+
+export type ViewMode = "review" | "history";
 
 interface TopItem {
   id: TopId;
@@ -49,11 +58,11 @@ interface TopItem {
   badge?: string;
   soon?: boolean;
 }
-type TopId = "review" | "history" | "checklist" | "settings";
+type TopId = ViewMode | "checklist" | "settings";
 
 const TOP_LEVEL: TopItem[] = [
   { id: "review", label: "Review bài viết", Icon: ReviewIcon },
-  { id: "history", label: "Lịch sử kiểm tra", Icon: HistoryIcon, badge: "12", soon: true },
+  { id: "history", label: "Lịch sử kiểm tra", Icon: HistoryIcon },
   { id: "checklist", label: "Checklist SEO", Icon: ChecklistSeoIcon, soon: true },
   { id: "settings", label: "Cài đặt", Icon: SettingsIcon, soon: true },
 ];
@@ -74,18 +83,43 @@ const SUB_ITEMS: SubItem[] = [
 const ALL_SUB_IDS = SUB_ITEMS.map((s) => s.id);
 
 interface Props {
+  view: ViewMode;
+  onChangeView: (v: ViewMode) => void;
   resultVersion?: number;
+  historyCount?: number;
 }
 
 /* ───────── Component ───────── */
 
-export default function Sidebar({ resultVersion = 0 }: Props) {
-  const [activeTop, setActiveTop] = useState<TopId>("review");
+export default function Sidebar({
+  view,
+  onChangeView,
+  resultVersion = 0,
+  historyCount,
+}: Props) {
+  const { user, logout } = useAuth();
   const [activeSub, setActiveSub] = useState<string | null>(null);
   const [availableSubs, setAvailableSubs] = useState<Set<string>>(new Set());
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  /* Scroll-spy for sub-items */
+  /* Click-away for user menu */
   useEffect(() => {
+    if (!menuOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    window.addEventListener("mousedown", onClick);
+    return () => window.removeEventListener("mousedown", onClick);
+  }, [menuOpen]);
+
+  /* Scroll-spy — only meaningful in review view */
+  useEffect(() => {
+    if (view !== "review") {
+      setActiveSub(null);
+      setAvailableSubs(new Set());
+      return;
+    }
     const present = new Set<string>();
     ALL_SUB_IDS.forEach((id) => {
       if (document.getElementById(id)) present.add(id);
@@ -130,7 +164,7 @@ export default function Sidebar({ resultVersion = 0 }: Props) {
       window.removeEventListener("resize", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [resultVersion]);
+  }, [resultVersion, view]);
 
   const handleJump = (id: string) => {
     const el = document.getElementById(id);
@@ -139,6 +173,8 @@ export default function Sidebar({ resultVersion = 0 }: Props) {
       setActiveSub(id);
     }
   };
+
+  const initial = (user?.name || user?.email || "?")[0]?.toUpperCase();
 
   return (
     <aside className="hidden lg:flex w-64 xl:w-72 shrink-0 flex-col border-r border-slate-200/70 bg-white/80 backdrop-blur sticky top-0 h-screen">
@@ -151,7 +187,7 @@ export default function Sidebar({ resultVersion = 0 }: Props) {
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-slate-900 tracking-tight">SEO Reviewer</p>
-            <p className="text-xs text-slate-500 truncate">Content audit · v0.1</p>
+            <p className="text-xs text-slate-500 truncate">Content audit · v0.2</p>
           </div>
         </div>
       </div>
@@ -162,15 +198,23 @@ export default function Sidebar({ resultVersion = 0 }: Props) {
         </p>
         <ul className="space-y-0.5">
           {TOP_LEVEL.map((item) => {
-            const isActive = activeTop === item.id;
+            const isActive =
+              (item.id === "review" || item.id === "history") &&
+              view === item.id;
             const onClick = () => {
               if (item.soon) return;
-              setActiveTop(item.id);
+              if (item.id === "review" || item.id === "history") {
+                onChangeView(item.id);
+              }
             };
+            const badge =
+              item.id === "history" && typeof historyCount === "number"
+                ? String(historyCount)
+                : item.badge;
             return (
               <li key={item.id}>
                 <TopButton
-                  item={item}
+                  item={{ ...item, badge }}
                   active={isActive}
                   onClick={onClick}
                 />
@@ -187,16 +231,41 @@ export default function Sidebar({ resultVersion = 0 }: Props) {
         </ul>
       </nav>
 
-      <div className="p-3 border-t border-slate-200/70">
-        <button className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition text-left">
+      <div className="p-3 border-t border-slate-200/70 relative" ref={menuRef}>
+        {menuOpen && (
+          <div className="absolute bottom-full left-3 right-3 mb-2 rounded-xl bg-white shadow-soft ring-1 ring-slate-200 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                logout();
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition"
+            >
+              <LogoutIcon className="h-4 w-4 text-slate-400" />
+              Đăng xuất
+            </button>
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition text-left"
+        >
           <div className="h-9 w-9 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white grid place-items-center text-sm font-semibold shrink-0">
-            S
+            {initial}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-slate-900 truncate">Seongon Team</p>
-            <p className="text-xs text-slate-500 truncate">gcontent@seongon.com</p>
+            <p className="text-sm font-medium text-slate-900 truncate">
+              {user?.name || user?.email || "Khách"}
+            </p>
+            <p className="text-xs text-slate-500 truncate">{user?.email}</p>
           </div>
-          <ChevronIcon className="h-4 w-4 text-slate-400 rotate-90" />
+          <ChevronIcon
+            className={`h-4 w-4 text-slate-400 transition ${
+              menuOpen ? "-rotate-90" : "rotate-90"
+            }`}
+          />
         </button>
       </div>
     </aside>

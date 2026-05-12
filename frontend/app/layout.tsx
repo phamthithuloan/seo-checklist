@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { AuthProvider } from "@/lib/auth-context";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -21,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="vi" className={inter.variable}>
       <body className="min-h-screen font-sans antialiased text-slate-800">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

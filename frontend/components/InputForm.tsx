@@ -1,16 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { api, ApiError, type SourceType } from "@/lib/api";
 
 interface Props {
   keyword: string;
   meta: string;
   content: string;
+  title: string | null;
+  sourceType: SourceType;
   onKeywordChange: (v: string) => void;
   onMetaChange: (v: string) => void;
   onContentChange: (v: string) => void;
+  onTitleChange: (v: string | null) => void;
+  onSourceTypeChange: (v: SourceType) => void;
+  onSourceUrlChange: (v: string | null) => void;
   onAnalyze: () => void;
   onClear: () => void;
+  analyzing?: boolean;
+  error?: string | null;
 }
 
 const SparkleIcon = () => (
@@ -52,21 +60,32 @@ export default function InputForm({
   keyword,
   meta,
   content,
+  title,
+  sourceType,
   onKeywordChange,
   onMetaChange,
   onContentChange,
+  onTitleChange,
+  onSourceTypeChange,
+  onSourceUrlChange,
   onAnalyze,
   onClear,
+  analyzing = false,
+  error = null,
 }: Props) {
   const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
   const metaLeft = 165 - meta.length;
-  const canAnalyze = !!keyword.trim() && !!content.trim();
+  const canAnalyze = !!keyword.trim() && !!content.trim() && !analyzing;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadedName, setUploadedName] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
+
+  const [gdocsUrl, setGdocsUrl] = useState("");
+  const [gdocsFetching, setGdocsFetching] = useState(false);
+  const [gdocsError, setGdocsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (content === "") {
@@ -108,6 +127,9 @@ export default function InputForm({
       }
       onContentChange(text);
       setUploadedName(file.name);
+      onSourceTypeChange("file");
+      onSourceUrlChange(null);
+      if (!title) onTitleChange(file.name.replace(/\.(txt|docx)$/i, ""));
     } catch (err) {
       console.error(err);
       setUploadError("Không đọc được file. Hãy kiểm tra định dạng.");
@@ -129,6 +151,32 @@ export default function InputForm({
     if (f) handleFile(f);
   };
 
+  const handleFetchGdocs = async () => {
+    setGdocsError(null);
+    const url = gdocsUrl.trim();
+    if (!url) return;
+    setGdocsFetching(true);
+    try {
+      const r = await api.sources.googleDocs(url);
+      onContentChange(r.text);
+      if (r.title && !title) onTitleChange(r.title);
+      onSourceTypeChange("gdocs");
+      onSourceUrlChange(url);
+      setUploadedName(null);
+    } catch (err) {
+      setGdocsError(
+        err instanceof ApiError ? err.detail : "Không tải được Google Doc.",
+      );
+    } finally {
+      setGdocsFetching(false);
+    }
+  };
+
+  const setSourceTab = (t: SourceType) => {
+    onSourceTypeChange(t);
+    if (t !== "gdocs") setGdocsError(null);
+  };
+
   return (
     <section className="rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/70">
       <div className="px-6 pt-5 pb-4 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
@@ -137,7 +185,7 @@ export default function InputForm({
             Phân tích bài viết
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Dán Markdown / text, hoặc upload file <span className="font-mono">.txt</span> / <span className="font-mono">.docx</span>
+            Paste text, upload file, hoặc dán URL Google Docs (công khai).
           </p>
         </div>
         <span className="text-xs text-slate-500 num">{wordCount} từ</span>
@@ -145,11 +193,7 @@ export default function InputForm({
 
       <div className="p-6 space-y-5">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <Field
-            label="Từ khóa chính"
-            required
-            hint="Từ khóa cần lên top — sẽ kiểm tra trong H2 và mật độ."
-          >
+          <Field label="Từ khóa chính" required hint="Kiểm tra trong H2 và mật độ.">
             <input
               value={keyword}
               onChange={(e) => onKeywordChange(e.target.value)}
@@ -176,13 +220,43 @@ export default function InputForm({
           </Field>
         </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">
-            <label className="text-sm font-medium text-slate-800">
-              Nội dung bài viết
-            </label>
+        <Field label="Tiêu đề bài (tuỳ chọn)" hint="Để dễ nhận trong lịch sử.">
+          <input
+            value={title || ""}
+            onChange={(e) => onTitleChange(e.target.value || null)}
+            placeholder="vd: Hướng dẫn SEO 2026"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
+          />
+        </Field>
 
-            <div className="flex items-center gap-2">
+        <div>
+          <label className="text-sm font-medium text-slate-800">Nguồn nội dung</label>
+
+          <div className="inline-flex rounded-xl bg-slate-100 p-1 my-2">
+            {(
+              [
+                { id: "paste", label: "Paste text" },
+                { id: "file", label: "Upload file" },
+                { id: "gdocs", label: "Google Docs URL" },
+              ] as const
+            ).map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setSourceTab(t.id)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition ${
+                  sourceType === t.id
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {sourceType === "file" && (
+            <div className="mb-3 flex flex-wrap items-center gap-2">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -197,14 +271,8 @@ export default function InputForm({
                 className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg ring-1 ring-slate-200 text-slate-700 hover:bg-slate-50 transition disabled:opacity-60"
               >
                 {uploading ? <SpinIcon /> : <UploadIcon />}
-                {uploading ? "Đang đọc..." : "Upload .txt / .docx"}
+                {uploading ? "Đang đọc..." : "Chọn file .txt / .docx"}
               </button>
-            </div>
-          </div>
-
-          {/* Status badges */}
-          {(uploadedName || uploadError) && (
-            <div className="mb-2 flex flex-wrap items-center gap-2">
               {uploadedName && !uploadError && (
                 <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
                   <FileIcon />
@@ -218,7 +286,6 @@ export default function InputForm({
                       setUploadedName(null);
                     }}
                     className="ml-1 -mr-0.5 p-0.5 rounded hover:bg-emerald-100"
-                    aria-label="Xoá file đã tải"
                   >
                     <XIcon />
                   </button>
@@ -233,17 +300,53 @@ export default function InputForm({
             </div>
           )}
 
+          {sourceType === "gdocs" && (
+            <div className="mb-3 space-y-2">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  value={gdocsUrl}
+                  onChange={(e) => setGdocsUrl(e.target.value)}
+                  placeholder="https://docs.google.com/document/d/.../edit"
+                  className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
+                />
+                <button
+                  type="button"
+                  onClick={handleFetchGdocs}
+                  disabled={gdocsFetching || !gdocsUrl.trim()}
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl ring-1 ring-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
+                >
+                  {gdocsFetching ? <SpinIcon /> : null}
+                  {gdocsFetching ? "Đang tải..." : "Tải nội dung"}
+                </button>
+              </div>
+              <p className="text-xs text-slate-500">
+                Doc phải đặt quyền <span className="font-mono">Anyone with link can view</span>.
+              </p>
+              {gdocsError && (
+                <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 ring-1 ring-rose-200">
+                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                  {gdocsError}
+                </span>
+              )}
+            </div>
+          )}
+
           <div
             onDragEnter={(e) => {
+              if (sourceType !== "file") return;
               e.preventDefault();
               setDragActive(true);
             }}
             onDragOver={(e) => {
+              if (sourceType !== "file") return;
               e.preventDefault();
               setDragActive(true);
             }}
             onDragLeave={() => setDragActive(false)}
-            onDrop={onDrop}
+            onDrop={(e) => {
+              if (sourceType !== "file") return;
+              onDrop(e);
+            }}
             className={`relative rounded-xl transition ${
               dragActive ? "ring-2 ring-brand-400 ring-offset-2 ring-offset-white" : ""
             }`}
@@ -252,7 +355,11 @@ export default function InputForm({
               value={content}
               onChange={(e) => onContentChange(e.target.value)}
               rows={14}
-              placeholder={"# Tiêu đề bài viết\n\n## Mở đầu\n...\n\n## TL;DR\n- ...\n\n## FAQ\n...\n\n— hoặc kéo-thả file .txt / .docx vào đây —"}
+              placeholder={
+                sourceType === "gdocs"
+                  ? "Nội dung sẽ tự fill sau khi tải Google Doc..."
+                  : "# Tiêu đề\n\n## Mở đầu\n...\n\n## TL;DR\n- ...\n\n## FAQ\n..."
+              }
               className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm font-mono leading-relaxed placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition resize-y"
             />
             {dragActive && (
@@ -266,13 +373,23 @@ export default function InputForm({
             )}
           </div>
           <p className="mt-1.5 text-xs text-slate-500">
-            Markdown được khuyến nghị — `## Heading`, `[anchor](/path)`. File <span className="font-mono">.docx</span> sẽ được trích xuất raw text.
+            Markdown được khuyến nghị — <span className="font-mono">## Heading</span>, <span className="font-mono">[anchor](/path)</span>.
           </p>
         </div>
 
+        {error && (
+          <div className="rounded-lg bg-rose-50 ring-1 ring-rose-200 px-3 py-2 text-sm text-rose-700">
+            {error}
+          </div>
+        )}
+
         <div className="flex items-center justify-between gap-3 pt-1">
           <p className="text-xs text-slate-500">
-            {canAnalyze ? "Sẵn sàng phân tích" : "Nhập từ khóa và nội dung để bắt đầu"}
+            {analyzing
+              ? "Đang phân tích..."
+              : canAnalyze
+              ? "Sẵn sàng phân tích"
+              : "Nhập từ khóa và nội dung để bắt đầu"}
           </p>
           <div className="flex gap-2">
             <button
@@ -288,8 +405,8 @@ export default function InputForm({
               disabled={!canAnalyze}
               className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-br from-brand-500 to-violet-500 hover:from-brand-600 hover:to-violet-600 text-white text-sm font-medium shadow-glow disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition"
             >
-              <SparkleIcon />
-              Phân tích
+              {analyzing ? <SpinIcon /> : <SparkleIcon />}
+              {analyzing ? "Đang phân tích..." : "Phân tích"}
             </button>
           </div>
         </div>
