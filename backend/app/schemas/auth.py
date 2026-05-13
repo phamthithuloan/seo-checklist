@@ -58,3 +58,12 @@ class UserUpdate(CamelModel):
 class PasswordChange(CamelModel):
     current_password: str
     new_password: str = Field(min_length=8, max_length=128)
+
+
+class ForgotPasswordIn(CamelModel):
+    email: EmailStr
+
+
+class ResetPasswordIn(CamelModel):
+    token: str
+    new_password: str = Field(min_length=8, max_length=128)

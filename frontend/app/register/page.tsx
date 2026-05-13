@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
-import { AuthShell, Field, ErrorBanner } from "@/components/AuthShell";
+import { AuthShell, Field, ErrorBanner, PasswordInput } from "@/components/AuthShell";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -64,14 +64,11 @@ export default function RegisterPage() {
           />
         </Field>
         <Field label="Mật khẩu" hint="Tối thiểu 8 ký tự.">
-          <input
-            type="password"
-            required
-            minLength={8}
-            autoComplete="new-password"
+          <PasswordInput
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
+            onChange={setPassword}
+            autoComplete="new-password"
+            minLength={8}
           />
         </Field>
 

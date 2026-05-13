@@ -25,6 +25,13 @@ class Settings(BaseSettings):
 
     anthropic_api_key: str | None = Field(default=None)
 
+    # Email (password reset). All optional — if resend_api_key is empty,
+    # /auth/forgot-password logs the reset link instead of sending email.
+    resend_api_key: str | None = Field(default=None)
+    email_from: str = Field(default="MindGate <onboarding@resend.dev>")
+    frontend_url: str = Field(default="http://localhost:3000")
+    reset_token_expire_minutes: int = 60
+
     cors_origins: Annotated[list[str], NoDecode] = Field(
         default_factory=lambda: ["http://localhost:3000"]
     )

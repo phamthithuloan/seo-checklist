@@ -210,6 +210,21 @@ export const api = {
     changePassword(data: PasswordChange) {
       return request<void>("/auth/password/change", { method: "POST", body: data });
     },
+    forgotPassword(email: string) {
+      return request<void>("/auth/forgot-password", {
+        method: "POST",
+        body: { email },
+        auth: false,
+      });
+    },
+    async resetPassword(token: string, newPassword: string) {
+      const r = await request<{ accessToken: string; tokenType: string }>(
+        "/auth/reset-password",
+        { method: "POST", body: { token, newPassword }, auth: false },
+      );
+      tokenStore.set(r.accessToken);
+      return r;
+    },
     updateNotifications(prefs: NotificationPrefs) {
       return request<User>("/auth/me/notifications", { method: "PUT", body: prefs });
     },

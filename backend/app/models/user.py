@@ -24,6 +24,12 @@ class User(Base):
     notification_prefs: Mapped[dict[str, Any]] = mapped_column(
         JSONB, nullable=False, default=dict
     )
+    reset_token_hash: Mapped[str | None] = mapped_column(
+        String(128), nullable=True
+    )
+    reset_token_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

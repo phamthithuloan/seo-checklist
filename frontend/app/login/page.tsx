@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
-import { AuthShell, Field, ErrorBanner } from "@/components/AuthShell";
+import { AuthShell, Field, ErrorBanner, PasswordInput } from "@/components/AuthShell";
 
 export default function LoginPage() {
   return (
@@ -61,15 +61,21 @@ function LoginContent() {
           />
         </Field>
         <Field label="Mật khẩu">
-          <input
-            type="password"
-            required
-            autoComplete="current-password"
+          <PasswordInput
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={inputCls}
+            onChange={setPassword}
+            autoComplete="current-password"
           />
         </Field>
+
+        <p className="text-right -mt-2">
+          <Link
+            href="/forgot-password"
+            className="text-xs text-brand-600 hover:text-brand-700 font-medium"
+          >
+            Quên mật khẩu?
+          </Link>
+        </p>
 
         {error && <ErrorBanner message={error} />}
 
