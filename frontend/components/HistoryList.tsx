@@ -91,7 +91,7 @@ export default function HistoryList({ refreshKey = 0, onOpen }: Props) {
   if (!items || items.length === 0) {
     return (
       <div className="rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/70 p-10 md:p-14 text-center">
-        <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-brand-500 to-violet-500 grid place-items-center shadow-glow">
+        <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 grid place-items-center shadow-glow">
           <svg viewBox="0 0 24 24" className="h-7 w-7 text-white" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
             <path d="M3 3v5h5" />

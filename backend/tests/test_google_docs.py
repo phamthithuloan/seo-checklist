@@ -29,24 +29,52 @@ def _patch_get(monkeypatch, response: httpx.Response) -> None:
     monkeypatch.setattr(httpx.AsyncClient, "get", fake_get)
 
 
-async def test_fetch_text_public_returns_title_and_text(monkeypatch):
+def _response_from(url: str, status_code: int, *, content_type: str, text: str = "") -> httpx.Response:
+    """Build a Response whose `.url` reflects the final destination after redirects."""
+    return httpx.Response(
+        status_code,
+        headers={"content-type": content_type},
+        text=text,
+        request=httpx.Request("GET", url),
+    )
+
+
+async def test_fetch_text_public_returns_markdown(monkeypatch):
+    # Google now returns HTML — html2text converts to Markdown.
+    html = """<!DOCTYPE html><html><body>
+        <h1>Tiêu đề chính</h1>
+        <h2>Phần 1</h2>
+        <p>Đoạn nội dung đầu tiên.</p>
+        <ul><li>điểm 1</li><li>điểm 2</li></ul>
+        <p><strong>In đậm</strong> và <em>nghiêng</em>.</p>
+    </body></html>"""
     _patch_get(
         monkeypatch,
-        httpx.Response(
+        _response_from(
+            "https://doc-00-xx-docs.googleusercontent.com/export/abc?format=html",
             200,
-            headers={"content-type": "text/plain; charset=utf-8"},
-            text="Tiêu đề chính\n\nĐoạn nội dung đầu tiên.\n\nĐoạn nữa.",
+            content_type="text/html; charset=utf-8",
+            text=html,
         ),
     )
-    title, text = await fetch_text("https://docs.google.com/document/d/abc123/edit")
+    title, md = await fetch_text("https://docs.google.com/document/d/abc123/edit")
     assert title == "Tiêu đề chính"
-    assert "Đoạn nội dung đầu tiên." in text
+    assert "# Tiêu đề chính" in md
+    assert "## Phần 1" in md
+    assert "điểm 1" in md
+    assert "**In đậm**" in md
 
 
-async def test_fetch_text_private_redirect_raises_400(monkeypatch):
+async def test_fetch_text_private_redirects_to_signin(monkeypatch):
+    # Private doc → final URL is the sign-in page.
     _patch_get(
         monkeypatch,
-        httpx.Response(302, headers={"location": "https://accounts.google.com/..."}),
+        _response_from(
+            "https://accounts.google.com/v3/signin/identifier?continue=...",
+            200,
+            content_type="text/html; charset=utf-8",
+            text="<html>Sign in</html>",
+        ),
     )
     with pytest.raises(HTTPException) as exc:
         await fetch_text("https://docs.google.com/document/d/private123/edit")
@@ -54,13 +82,15 @@ async def test_fetch_text_private_redirect_raises_400(monkeypatch):
     assert "không công khai" in exc.value.detail.lower()
 
 
-async def test_fetch_text_private_html_response_raises_400(monkeypatch):
+async def test_fetch_text_signin_form_treated_as_private(monkeypatch):
+    # Final URL stays on docs.google.com but body is a sign-in HTML page with <form ... signin ...>
     _patch_get(
         monkeypatch,
-        httpx.Response(
+        _response_from(
+            "https://docs.google.com/document/d/private/edit",
             200,
-            headers={"content-type": "text/html; charset=utf-8"},
-            text="<html><body>Sign in to Google</body></html>",
+            content_type="text/html; charset=utf-8",
+            text='<html><body><form action="/signin">Sign in</form></body></html>',
         ),
     )
     with pytest.raises(HTTPException) as exc:
@@ -72,7 +102,12 @@ async def test_fetch_text_private_html_response_raises_400(monkeypatch):
 async def test_fetch_text_404_propagates(monkeypatch):
     _patch_get(
         monkeypatch,
-        httpx.Response(404, text="Not found"),
+        _response_from(
+            "https://docs.google.com/document/d/missing/export?format=txt",
+            404,
+            content_type="text/html",
+            text="Not found",
+        ),
     )
     with pytest.raises(HTTPException) as exc:
         await fetch_text("https://docs.google.com/document/d/missing/edit")
@@ -89,7 +124,12 @@ async def test_fetch_text_invalid_url_raises_400():
 async def test_fetch_text_empty_doc_raises_400(monkeypatch):
     _patch_get(
         monkeypatch,
-        httpx.Response(200, headers={"content-type": "text/plain"}, text="\n\n  \n"),
+        _response_from(
+            "https://doc-00-xx-docstext.googleusercontent.com/export/empty?format=txt",
+            200,
+            content_type="text/plain",
+            text="\n\n  \n",
+        ),
     )
     with pytest.raises(HTTPException) as exc:
         await fetch_text("https://docs.google.com/document/d/empty/edit")

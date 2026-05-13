@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AuthProvider } from "@/lib/auth-context";
+import ThemeProvider from "@/components/ThemeProvider";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -10,8 +11,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SEO Content Checklist Reviewer",
-  description: "Phân tích bài viết SEO theo checklist rule-based.",
+  title: "MindGate — SEO Content Reviewer",
+  description: "MindGate giúp chấm điểm bài viết SEO theo 37+ tiêu chí + AI proofread.",
+  icons: { icon: "/mindgate-logo.png" },
 };
 
 export default function RootLayout({
@@ -22,7 +24,9 @@ export default function RootLayout({
   return (
     <html lang="vi" className={inter.variable}>
       <body className="min-h-screen font-sans antialiased text-slate-800">
-        <AuthProvider>{children}</AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

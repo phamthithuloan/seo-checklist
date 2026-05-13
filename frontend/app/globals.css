@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --font-base: 16px;
+  }
+  html {
+    font-size: var(--font-base);
+  }
   html,
   body {
     height: 100%;
@@ -15,6 +21,13 @@
     color: #0f172a;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+  }
+  html.dark body {
+    background:
+      radial-gradient(1000px 500px at 90% -10%, rgba(99, 102, 241, 0.12), transparent 60%),
+      radial-gradient(800px 400px at -10% 110%, rgba(139, 92, 246, 0.10), transparent 60%),
+      #0b1120;
+    color: #e2e8f0;
   }
   ::selection {
     background-color: #c7d2fe;

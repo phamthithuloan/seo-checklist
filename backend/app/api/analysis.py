@@ -1,3 +1,5 @@
+import math
+import re
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
@@ -8,7 +10,14 @@ from app.api.deps import get_current_user
 from app.db.session import get_db
 from app.models.analysis import Analysis
 from app.models.user import User
-from app.schemas.analysis import AnalysisCreate, AnalysisListItem, AnalysisOut
+from app.schemas.analysis import (
+    AnalysisCreate,
+    AnalysisListItem,
+    AnalysisOut,
+)
+from app.services.ai_proofread import proofread_content
+from app.services.outline_compare import compare_outline
+from app.services.report_export import render_analysis_html, render_analysis_markdown
 from app.services.seo_analyzer import analyze_content
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
@@ -36,7 +45,36 @@ async def create_analysis(
         content=data.content,
         keyword=data.keyword,
         meta_description=data.meta_description,
+        enabled_checks=data.enabled_checks,
+        config=data.config,
     )
+
+    # Optional AI proofread (grammar + spelling) — opt-in, costs API tokens
+    if data.ai_proofread:
+        proofread = await proofread_content(data.content)
+        if proofread is not None:
+            grammar_check, spelling_check = proofread
+            result.checks.extend([grammar_check, spelling_check])
+            # Re-aggregate counts/score to include grammar + spelling
+            result.total_checks = len(result.checks)
+            result.pass_count = sum(1 for c in result.checks if c.status == "pass")
+            result.fail_count = sum(1 for c in result.checks if c.status == "fail")
+            result.warn_count = sum(1 for c in result.checks if c.status == "warn")
+            result.score = (
+                math.floor(
+                    ((result.pass_count + result.warn_count * 0.5) / result.total_checks)
+                    * 100
+                    + 0.5
+                )
+                if result.total_checks > 0
+                else 0
+            )
+
+    # Optional outline comparison
+    outline_comparison_dict = None
+    outline_text = data.outline.strip() if data.outline else None
+    if outline_text:
+        outline_comparison_dict = compare_outline(outline_text, data.content).model_dump()
 
     analysis = Analysis(
         user_id=user.id,
@@ -54,6 +92,8 @@ async def create_analysis(
         word_count=result.word_count,
         keyword_density=result.keyword_density,
         checks=[c.model_dump() for c in result.checks],
+        outline=outline_text,
+        outline_comparison=outline_comparison_dict,
     )
     db.add(analysis)
     await db.commit()
@@ -98,3 +138,47 @@ async def delete_analysis(
     await db.delete(analysis)
     await db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+_SAFE_FILENAME_RE = re.compile(r"[^A-Za-z0-9_.\-]+")
+
+
+def _safe_filename(name: str, ext: str) -> str:
+    base = _SAFE_FILENAME_RE.sub("-", name.strip())[:80] or "bao-cao-seo"
+    return f"{base}.{ext}"
+
+
+@router.get("/{analysis_id}/export")
+async def export_analysis(
+    analysis_id: UUID,
+    format: str = "markdown",
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Export analysis as Markdown or HTML. ?format=markdown (default) | html."""
+    analysis = await _get_owned(analysis_id, user, db)
+    base_name = analysis.title or analysis.keyword or "bao-cao-seo"
+
+    if format == "html":
+        body = render_analysis_html(analysis)
+        return Response(
+            content=body,
+            media_type="text/html; charset=utf-8",
+            headers={
+                "Content-Disposition": (
+                    f'attachment; filename="{_safe_filename(base_name, "html")}"'
+                ),
+            },
+        )
+
+    # default: markdown
+    body = render_analysis_markdown(analysis)
+    return Response(
+        content=body,
+        media_type="text/markdown; charset=utf-8",
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="{_safe_filename(base_name, "md")}"'
+            ),
+        },
+    )

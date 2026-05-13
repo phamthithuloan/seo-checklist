@@ -1,6 +1,6 @@
 "use client";
 
-import type { AnalysisResult, CheckStatus } from "./types";
+import type { AnalysisResult, CheckStatus, OutlineComparison } from "./types";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
@@ -9,14 +9,61 @@ const TOKEN_KEY = "seo:token";
 
 /* ───────── Types mirroring backend ───────── */
 
+export type AvatarColor =
+  | "emerald"
+  | "sky"
+  | "violet"
+  | "rose"
+  | "amber"
+  | "indigo"
+  | "slate"
+  | "teal";
+
+export interface NotificationPrefs {
+  emailEnabled: boolean;
+  pushEnabled: boolean;
+  analysisDone: boolean;
+  weeklyReport: boolean;
+  criticalErrors: boolean;
+  productNews: boolean;
+}
+
 export interface User {
   id: string;
   email: string;
   name: string | null;
+  phone?: string | null;
+  avatarColor?: AvatarColor;
+  notificationPrefs?: NotificationPrefs;
   createdAt: string;
 }
 
-export type SourceType = "paste" | "file" | "gdocs";
+export interface UserUpdate {
+  name?: string | null;
+  phone?: string | null;
+  email?: string;
+  avatarColor?: AvatarColor;
+}
+
+export interface PasswordChange {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export type SourceType = "paste" | "file" | "gdocs" | "url";
+
+export interface AnalysisConfig {
+  secondaryKeywords?: string[];
+  pronouns?: string[];
+  brandVoiceKeywords?: string[];
+  brandMessage?: string;
+  adForbiddenWords?: string[];
+  competitors?: string[];
+  personaKeywords?: string[];
+  awardsMentions?: string[];
+  productUrls?: string[];
+  lsiKeywords?: string[];
+}
 
 export interface AnalysisCreate {
   keyword: string;
@@ -25,6 +72,10 @@ export interface AnalysisCreate {
   sourceType: SourceType;
   sourceUrl?: string | null;
   title?: string | null;
+  enabledChecks?: string[] | null;
+  config?: AnalysisConfig | null;
+  outline?: string | null;
+  aiProofread?: boolean;
 }
 
 export interface AnalysisOut extends AnalysisResult {
@@ -36,6 +87,8 @@ export interface AnalysisOut extends AnalysisResult {
   content: string;
   sourceType: SourceType;
   sourceUrl: string | null;
+  outline?: string | null;
+  outlineComparison?: OutlineComparison | null;
   createdAt: string;
 }
 
@@ -151,6 +204,15 @@ export const api = {
     me() {
       return request<User>("/auth/me");
     },
+    updateMe(data: UserUpdate) {
+      return request<User>("/auth/me", { method: "PATCH", body: data });
+    },
+    changePassword(data: PasswordChange) {
+      return request<void>("/auth/password/change", { method: "POST", body: data });
+    },
+    updateNotifications(prefs: NotificationPrefs) {
+      return request<User>("/auth/me/notifications", { method: "PUT", body: prefs });
+    },
     logout() {
       tokenStore.clear();
     },
@@ -169,11 +231,43 @@ export const api = {
     delete(id: string) {
       return request<void>(`/analysis/${id}`, { method: "DELETE" });
     },
+    /** Build a URL the browser can download directly. Auth handled in download helper. */
+    exportUrl(id: string, format: "markdown" | "html" = "markdown") {
+      return `${API_URL}/analysis/${id}/export?format=${format}`;
+    },
+    async downloadExport(id: string, format: "markdown" | "html" = "markdown") {
+      const token = tokenStore.get();
+      const res = await fetch(`${API_URL}/analysis/${id}/export?format=${format}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) {
+        throw new ApiError(res.status, `Export thất bại (HTTP ${res.status})`);
+      }
+      const blob = await res.blob();
+      // Parse filename from Content-Disposition if present
+      const cd = res.headers.get("content-disposition") || "";
+      const match = cd.match(/filename="([^"]+)"/);
+      const filename = match?.[1] || `bao-cao-seo.${format === "html" ? "html" : "md"}`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    },
   },
 
   sources: {
     googleDocs(url: string) {
       return request<GoogleDocsOut>("/sources/google-docs", {
+        method: "POST",
+        body: { url },
+      });
+    },
+    url(url: string) {
+      return request<GoogleDocsOut>("/sources/url", {
         method: "POST",
         body: { url },
       });

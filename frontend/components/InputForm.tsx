@@ -9,12 +9,14 @@ interface Props {
   content: string;
   title: string | null;
   sourceType: SourceType;
+  aiProofread: boolean;
   onKeywordChange: (v: string) => void;
   onMetaChange: (v: string) => void;
   onContentChange: (v: string) => void;
   onTitleChange: (v: string | null) => void;
   onSourceTypeChange: (v: SourceType) => void;
   onSourceUrlChange: (v: string | null) => void;
+  onAiProofreadChange: (v: boolean) => void;
   onAnalyze: () => void;
   onClear: () => void;
   analyzing?: boolean;
@@ -62,12 +64,14 @@ export default function InputForm({
   content,
   title,
   sourceType,
+  aiProofread,
   onKeywordChange,
   onMetaChange,
   onContentChange,
   onTitleChange,
   onSourceTypeChange,
   onSourceUrlChange,
+  onAiProofreadChange,
   onAnalyze,
   onClear,
   analyzing = false,
@@ -86,6 +90,10 @@ export default function InputForm({
   const [gdocsUrl, setGdocsUrl] = useState("");
   const [gdocsFetching, setGdocsFetching] = useState(false);
   const [gdocsError, setGdocsError] = useState<string | null>(null);
+
+  const [urlInput, setUrlInput] = useState("");
+  const [urlFetching, setUrlFetching] = useState(false);
+  const [urlError, setUrlError] = useState<string | null>(null);
 
   useEffect(() => {
     if (content === "") {
@@ -172,9 +180,31 @@ export default function InputForm({
     }
   };
 
+  const handleFetchUrl = async () => {
+    setUrlError(null);
+    const url = urlInput.trim();
+    if (!url) return;
+    setUrlFetching(true);
+    try {
+      const r = await api.sources.url(url);
+      onContentChange(r.text);
+      if (r.title && !title) onTitleChange(r.title);
+      onSourceTypeChange("url");
+      onSourceUrlChange(url);
+      setUploadedName(null);
+    } catch (err) {
+      setUrlError(
+        err instanceof ApiError ? err.detail : "Không tải được URL.",
+      );
+    } finally {
+      setUrlFetching(false);
+    }
+  };
+
   const setSourceTab = (t: SourceType) => {
     onSourceTypeChange(t);
     if (t !== "gdocs") setGdocsError(null);
+    if (t !== "url") setUrlError(null);
   };
 
   return (
@@ -232,12 +262,13 @@ export default function InputForm({
         <div>
           <label className="text-sm font-medium text-slate-800">Nguồn nội dung</label>
 
-          <div className="inline-flex rounded-xl bg-slate-100 p-1 my-2">
+          <div className="inline-flex rounded-xl bg-slate-100 p-1 my-2 flex-wrap">
             {(
               [
                 { id: "paste", label: "Paste text" },
                 { id: "file", label: "Upload file" },
                 { id: "gdocs", label: "Google Docs URL" },
+                { id: "url", label: "URL bài viết" },
               ] as const
             ).map((t) => (
               <button
@@ -331,6 +362,37 @@ export default function InputForm({
             </div>
           )}
 
+          {sourceType === "url" && (
+            <div className="mb-3 space-y-2">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  placeholder="https://your-blog.com/bai-viet-da-publish"
+                  className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
+                />
+                <button
+                  type="button"
+                  onClick={handleFetchUrl}
+                  disabled={urlFetching || !urlInput.trim()}
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl ring-1 ring-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
+                >
+                  {urlFetching ? <SpinIcon /> : null}
+                  {urlFetching ? "Đang crawl..." : "Crawl URL"}
+                </button>
+              </div>
+              <p className="text-xs text-slate-500">
+                Paste URL bài viết đã publish trên website. Tool sẽ fetch HTML, strip nav/footer/script, chuyển thành markdown.
+              </p>
+              {urlError && (
+                <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 ring-1 ring-rose-200">
+                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                  {urlError}
+                </span>
+              )}
+            </div>
+          )}
+
           <div
             onDragEnter={(e) => {
               if (sourceType !== "file") return;
@@ -377,6 +439,29 @@ export default function InputForm({
           </p>
         </div>
 
+        <label className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-slate-50 ring-1 ring-slate-200 cursor-pointer hover:bg-slate-100 transition">
+          <input
+            type="checkbox"
+            checked={aiProofread}
+            onChange={(e) => onAiProofreadChange(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-300"
+          />
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-slate-900">
+                AI proofread ngữ pháp + chính tả
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 ring-1 ring-amber-200">
+                Mất phí
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Gọi Claude Sonnet 4.6 phát hiện lỗi ngữ pháp + chính tả tiếng Việt.
+              ~$0.01–0.03 / bài. Cần <span className="font-mono">ANTHROPIC_API_KEY</span> ở backend.
+            </p>
+          </div>
+        </label>
+
         {error && (
           <div className="rounded-lg bg-rose-50 ring-1 ring-rose-200 px-3 py-2 text-sm text-rose-700">
             {error}
@@ -403,7 +488,7 @@ export default function InputForm({
               type="button"
               onClick={onAnalyze}
               disabled={!canAnalyze}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-br from-brand-500 to-violet-500 hover:from-brand-600 hover:to-violet-600 text-white text-sm font-medium shadow-glow disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition"
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 hover:from-brand-600 hover:to-brand-800 text-white text-sm font-medium shadow-glow disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition"
             >
               {analyzing ? <SpinIcon /> : <SparkleIcon />}
               {analyzing ? "Đang phân tích..." : "Phân tích"}

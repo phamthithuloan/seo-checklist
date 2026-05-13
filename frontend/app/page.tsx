@@ -7,8 +7,19 @@ import InputForm from "@/components/InputForm";
 import ScoreCard from "@/components/ScoreCard";
 import CategorySection, { CATEGORIES } from "@/components/CategorySection";
 import HistoryList from "@/components/HistoryList";
+import ChecklistSettings from "@/components/ChecklistSettings";
+import OutlineInput from "@/components/OutlineInput";
+import OutlineComparisonView from "@/components/OutlineComparisonView";
+import SettingsView from "@/components/SettingsView";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError, type AnalysisOut, type SourceType } from "@/lib/api";
+import {
+  compactConfig,
+  configHasValue,
+  getConfig,
+  getEnabledRules,
+} from "@/lib/checklist-prefs";
+import { ALL_RULES, ALL_RULE_IDS } from "@/lib/checklist-rules";
 
 export default function Page() {
   const router = useRouter();
@@ -27,6 +38,8 @@ export default function Page() {
   const [title, setTitle] = useState<string | null>(null);
   const [sourceType, setSourceType] = useState<SourceType>("paste");
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
+  const [outline, setOutline] = useState("");
+  const [aiProofread, setAiProofread] = useState(false);
 
   /* Result / flow */
   const [result, setResult] = useState<AnalysisOut | null>(null);
@@ -37,6 +50,26 @@ export default function Page() {
 
   const handleAnalyze = async () => {
     setAnalyzeError(null);
+    const enabled = new Set(getEnabledRules());
+    const rawCfg = getConfig();
+
+    // Skip config rules whose input is empty — user intent: don't show
+    // "chưa cấu hình" warns when checkbox is ticked but field is blank.
+    const effectiveEnabled = ALL_RULE_IDS.filter((id) => {
+      if (!enabled.has(id)) return false;
+      const rule = ALL_RULES.find((r) => r.id === id);
+      if (!rule || rule.kind !== "config") return true;
+      return rule.configField ? configHasValue(rawCfg, rule.configField) : false;
+    });
+
+    if (effectiveEnabled.length === 0) {
+      setAnalyzeError(
+        "Không có tiêu chí nào để chấm. Mở Checklist SEO bật rule auto hoặc nhập input cho rule config.",
+      );
+      return;
+    }
+
+    const cfg = compactConfig(rawCfg);
     setAnalyzing(true);
     try {
       const data = await api.analysis.create({
@@ -46,6 +79,13 @@ export default function Page() {
         sourceType,
         sourceUrl: sourceUrl || undefined,
         title: title || undefined,
+        enabledChecks:
+          effectiveEnabled.length === ALL_RULE_IDS.length
+            ? undefined
+            : effectiveEnabled,
+        config: Object.keys(cfg).length > 0 ? cfg : undefined,
+        outline: outline.trim() ? outline : undefined,
+        aiProofread: aiProofread || undefined,
       });
       setResult(data);
       setResultVersion((v) => v + 1);
@@ -66,6 +106,7 @@ export default function Page() {
     setTitle(null);
     setSourceType("paste");
     setSourceUrl(null);
+    setOutline("");
     setResult(null);
     setAnalyzeError(null);
     setResultVersion((v) => v + 1);
@@ -83,6 +124,7 @@ export default function Page() {
       setTitle(data.title);
       setSourceType(data.sourceType);
       setSourceUrl(data.sourceUrl);
+      setOutline(data.outline || "");
       setResult(data);
       setResultVersion((v) => v + 1);
     } catch (err) {
@@ -115,16 +157,33 @@ export default function Page() {
           <div className="max-w-7xl mx-auto px-5 md:px-8 py-4 flex items-center justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-600">
-                {view === "review" ? "SEO Reviewer" : "Lịch sử"}
+                {view === "review"
+                  ? "MindGate · Review"
+                  : view === "history"
+                  ? "MindGate · Lịch sử"
+                  : view === "checklist"
+                  ? "MindGate · Checklist"
+                  : "MindGate · Cài đặt"}
               </p>
-              <h1 className="text-lg md:text-xl font-semibold tracking-tight text-slate-900 truncate">
-                {view === "review" ? "Content Checklist" : "Bài đã phân tích"}
+              <h1 className="text-lg md:text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 truncate">
+                {view === "review"
+                  ? "Content Checklist"
+                  : view === "history"
+                  ? "Bài đã phân tích"
+                  : view === "checklist"
+                  ? "Tiêu chí áp dụng"
+                  : "Tài khoản & Tuỳ chỉnh"}
               </h1>
             </div>
-            <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              Backend live
-            </span>
+            <div className="flex items-center gap-2">
+              {view === "review" && result && (
+                <ExportMenu analysisId={result.id} />
+              )}
+              <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 ring-1 ring-brand-100 dark:bg-brand-500/10 dark:text-brand-300 dark:ring-brand-400/30">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
+                Online
+              </span>
+            </div>
           </div>
         </header>
 
@@ -146,17 +205,21 @@ export default function Page() {
                 content={content}
                 title={title}
                 sourceType={sourceType}
+                aiProofread={aiProofread}
                 onKeywordChange={setKeyword}
                 onMetaChange={setMeta}
                 onContentChange={setContent}
                 onTitleChange={setTitle}
                 onSourceTypeChange={setSourceType}
                 onSourceUrlChange={setSourceUrl}
+                onAiProofreadChange={setAiProofread}
                 onAnalyze={handleAnalyze}
                 onClear={handleClear}
                 analyzing={analyzing}
                 error={analyzeError}
               />
+
+              <OutlineInput outline={outline} onOutlineChange={setOutline} />
 
               {result ? (
                 <>
@@ -184,12 +247,32 @@ export default function Page() {
                       />
                     ))}
                   </div>
+
+                  {result.outlineComparison && (
+                    <div id="outline-comparison" className="scroll-mt-24">
+                      <OutlineComparisonView
+                        comparison={result.outlineComparison}
+                      />
+                    </div>
+                  )}
                 </>
               ) : (
                 <EmptyState />
               )}
             </>
-          ) : (
+          ) : view === "settings" ? (
+            <>
+              <div className="space-y-1">
+                <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                  Cài đặt
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Tài khoản, hiển thị, thông báo.
+                </p>
+              </div>
+              <SettingsView />
+            </>
+          ) : view === "history" ? (
             <>
               <div className="space-y-1">
                 <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900">
@@ -204,6 +287,18 @@ export default function Page() {
                 onOpen={handleOpenFromHistory}
               />
             </>
+          ) : (
+            <>
+              <div className="space-y-1">
+                <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900">
+                  Checklist SEO
+                </h2>
+                <p className="text-sm text-slate-600">
+                  Chọn tiêu chí muốn áp dụng. Lựa chọn lưu trên trình duyệt và áp dụng cho các lần phân tích tiếp theo.
+                </p>
+              </div>
+              <ChecklistSettings />
+            </>
           )}
         </div>
       </main>
@@ -211,10 +306,69 @@ export default function Page() {
   );
 }
 
+function ExportMenu({ analysisId }: { analysisId: string }) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const download = async (format: "markdown" | "html") => {
+    setOpen(false);
+    setError(null);
+    setBusy(true);
+    try {
+      await api.analysis.downloadExport(analysisId, format);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.detail : "Export thất bại.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        disabled={busy}
+        className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg ring-1 ring-slate-200 text-slate-700 hover:bg-slate-50 transition disabled:opacity-50"
+      >
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <path d="M7 10l5 5 5-5M12 15V3" />
+        </svg>
+        {busy ? "Đang xuất..." : "Export"}
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-white shadow-soft ring-1 ring-slate-200 overflow-hidden z-20">
+          <button
+            type="button"
+            onClick={() => download("markdown")}
+            className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            Markdown (.md)
+          </button>
+          <button
+            type="button"
+            onClick={() => download("html")}
+            className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            HTML (.html)
+          </button>
+        </div>
+      )}
+      {error && (
+        <div className="absolute right-0 top-full mt-1 px-2 py-1 text-xs bg-rose-50 ring-1 ring-rose-200 text-rose-700 rounded">
+          {error}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function EmptyState() {
   return (
     <div className="rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/70 p-10 md:p-14 text-center">
-      <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-brand-500 to-violet-500 grid place-items-center shadow-glow">
+      <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 grid place-items-center shadow-glow">
         <svg viewBox="0 0 24 24" className="h-7 w-7 text-white" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16zM21 21l-4.3-4.3" />
         </svg>

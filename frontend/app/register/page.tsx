@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
-import { AuthShell, Field, ErrorBanner } from "../login/page";
+import { AuthShell, Field, ErrorBanner } from "@/components/AuthShell";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -80,7 +80,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-brand-500 to-violet-500 hover:from-brand-600 hover:to-violet-600 text-white text-sm font-medium shadow-glow disabled:opacity-50 transition"
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 hover:from-brand-600 hover:to-brand-800 text-white text-sm font-medium shadow-glow disabled:opacity-50 transition"
         >
           {submitting ? "Đang tạo tài khoản..." : "Đăng ký"}
         </button>

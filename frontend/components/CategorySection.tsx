@@ -29,6 +29,30 @@ const CtaIcon = ({ className }: IconProps) => (
     <path d="M3 11l18-7-7 18-2-8z" />
   </svg>
 );
+const UlLiIcon = ({ className }: IconProps) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 6h13M8 12h13M8 18h13" />
+    <circle cx="4" cy="6" r="1" />
+    <circle cx="4" cy="12" r="1" />
+    <circle cx="4" cy="18" r="1" />
+  </svg>
+);
+const AiIcon = ({ className }: IconProps) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2v3M12 19v3M5 12H2M22 12h-3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" />
+    <circle cx="12" cy="12" r="4" />
+  </svg>
+);
+const EeatIcon = ({ className }: IconProps) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2l3 7h7l-5.5 4.5L18 22l-6-4-6 4 1.5-8.5L2 9h7z" />
+  </svg>
+);
+const GrammarIcon = ({ className }: IconProps) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 7V5h16v2M9 5v14M15 5v14M6 19h12" />
+  </svg>
+);
 
 interface CategoryMeta {
   id: CategoryId;
@@ -44,7 +68,7 @@ export const CATEGORIES: CategoryMeta[] = [
   {
     id: "technical",
     label: "Technical SEO",
-    description: "Cấu trúc heading, meta, link, mật độ keyword",
+    description: "Heading, meta, link, mật độ keyword, Sapo, kết bài",
     Icon: TechnicalIcon,
     iconBg: "bg-indigo-50",
     iconText: "text-indigo-600",
@@ -52,30 +76,57 @@ export const CATEGORIES: CategoryMeta[] = [
   },
   {
     id: "readability",
-    label: "Readability",
-    description: "Độ dài bài, đoạn, câu, tóm tắt",
+    label: "Tốt cho người đọc",
+    description: "Độ dài câu, đoạn, câu dẫn sau heading",
     Icon: ReadabilityIcon,
     iconBg: "bg-sky-50",
     iconText: "text-sky-600",
     ringTint: "ring-sky-100",
   },
   {
+    id: "ul-li",
+    label: "UL-LI",
+    description: "Bullet list, in đậm, định dạng văn bản",
+    Icon: UlLiIcon,
+    iconBg: "bg-amber-50",
+    iconText: "text-amber-600",
+    ringTint: "ring-amber-100",
+  },
+  {
+    id: "ai-opt",
+    label: "Tối ưu cho AI",
+    description: "TL;DR, heading dạng câu hỏi",
+    Icon: AiIcon,
+    iconBg: "bg-emerald-50",
+    iconText: "text-emerald-600",
+    ringTint: "ring-emerald-100",
+  },
+  {
     id: "branding",
     label: "Branding",
-    description: "FAQ và tín hiệu E-E-A-T",
+    description: "FAQ, CTA, xưng hô, brand voice, message, từ cấm",
     Icon: BrandingIcon,
     iconBg: "bg-violet-50",
     iconText: "text-violet-600",
     ringTint: "ring-violet-100",
   },
   {
-    id: "cta",
-    label: "CTA",
-    description: "Lời kêu gọi hành động",
-    Icon: CtaIcon,
-    iconBg: "bg-rose-50",
-    iconText: "text-rose-600",
-    ringTint: "ring-rose-100",
+    id: "eeat",
+    label: "E-E-A-T",
+    description: "Experience / Expertise / Authoritativeness / Trust",
+    Icon: EeatIcon,
+    iconBg: "bg-orange-50",
+    iconText: "text-orange-600",
+    ringTint: "ring-orange-100",
+  },
+  {
+    id: "grammar",
+    label: "Ngữ pháp - Chính tả",
+    description: "AI proofread bằng Claude Sonnet 4.6 (opt-in, mất phí)",
+    Icon: GrammarIcon,
+    iconBg: "bg-slate-100",
+    iconText: "text-slate-700",
+    ringTint: "ring-slate-200",
   },
 ];
 

@@ -10,3 +10,12 @@ class GoogleDocsIn(CamelModel):
 class GoogleDocsOut(CamelModel):
     title: str | None
     text: str
+
+
+class UrlIn(CamelModel):
+    url: str = Field(min_length=1, max_length=2048)
+
+
+class UrlOut(CamelModel):
+    title: str | None
+    text: str

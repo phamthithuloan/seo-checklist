@@ -7,8 +7,51 @@ from pydantic import Field
 from app.schemas._base import CamelModel
 
 CheckStatus = Literal["pass", "fail", "warn"]
-CategoryId = Literal["technical", "readability", "branding", "cta"]
-SourceType = Literal["paste", "file", "gdocs"]
+CategoryId = Literal[
+    "technical",
+    "readability",
+    "branding",
+    "cta",
+    "ul-li",
+    "ai-opt",
+    "eeat",
+    "grammar",
+]
+SourceType = Literal["paste", "file", "gdocs", "url"]
+
+
+OutlineHeadingStatus = Literal["match", "missing", "extra"]
+OutlineFormat = Literal["text", "bullet", "table", "mixed", "empty"]
+
+
+class OutlineHeading(CamelModel):
+    """One row in the outline ↔ content comparison."""
+
+    level: int
+    title: str
+    target_words: int | None = None
+    target_format: OutlineFormat | None = None
+    actual_words: int | None = None
+    actual_format: OutlineFormat | None = None
+    status: OutlineHeadingStatus
+    note: str | None = None
+
+
+class OutlineComparison(CamelModel):
+    total_outline_headings: int
+    total_content_headings: int
+    matched: int
+    missing: int
+    extra: int
+    headings: list[OutlineHeading]
+
+
+class CheckIssue(CamelModel):
+    """A specific offending item surfaced by a check (e.g. a too-long sentence)."""
+
+    kind: Literal["sentence", "paragraph", "heading", "link", "word", "quote", "text"] = "text"
+    text: str
+    note: str | None = None
 
 
 class CheckResult(CamelModel):
@@ -19,6 +62,24 @@ class CheckResult(CamelModel):
     detail: str
     recommendation: str | None = None
     example: str | None = None
+    issues: list[CheckIssue] = []
+
+
+class AnalysisConfig(CamelModel):
+    """User-supplied input for configurable rules.
+    Empty / None values cause the corresponding rule to emit a 'needs-config' warn.
+    """
+
+    secondary_keywords: list[str] = Field(default_factory=list)
+    pronouns: list[str] = Field(default_factory=list)
+    brand_voice_keywords: list[str] = Field(default_factory=list)
+    brand_message: str = ""
+    ad_forbidden_words: list[str] = Field(default_factory=list)
+    competitors: list[str] = Field(default_factory=list)
+    persona_keywords: list[str] = Field(default_factory=list)
+    awards_mentions: list[str] = Field(default_factory=list)
+    product_urls: list[str] = Field(default_factory=list)
+    lsi_keywords: list[str] = Field(default_factory=list)
 
 
 class AnalysisResult(CamelModel):
@@ -43,6 +104,10 @@ class AnalysisCreate(CamelModel):
     source_type: SourceType = "paste"
     source_url: str | None = Field(default=None, max_length=1024)
     title: str | None = Field(default=None, max_length=255)
+    enabled_checks: list[str] | None = Field(default=None)
+    config: AnalysisConfig | None = Field(default=None)
+    outline: str | None = Field(default=None)
+    ai_proofread: bool = Field(default=False)
 
 
 class AnalysisOut(CamelModel):
@@ -64,6 +129,8 @@ class AnalysisOut(CamelModel):
     word_count: int
     keyword_density: float
     checks: list[CheckResult]
+    outline: str | None = None
+    outline_comparison: OutlineComparison | None = None
     created_at: datetime
 
 

@@ -24,7 +24,7 @@ export default function ScoreCard({ result }: { result: AnalysisResult }) {
       {/* Hero score card */}
       <div className="lg:col-span-2 relative overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/70">
         <div className="absolute inset-0 bg-gradient-to-br from-brand-50 via-white to-white pointer-events-none" />
-        <div className="absolute -top-24 -right-24 h-60 w-60 rounded-full bg-gradient-to-br from-brand-200/50 to-violet-200/40 blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 h-60 w-60 rounded-full bg-gradient-to-br from-brand-200/60 to-brand-300/40 blur-3xl pointer-events-none" />
 
         <div className="relative p-6 md:p-8 flex flex-col md:flex-row items-center md:items-stretch gap-6">
           <div className="relative h-44 w-44 shrink-0">

@@ -1,9 +1,9 @@
-# SEO Content Checklist Reviewer
+# MindGate — SEO Content Reviewer
 
 Monorepo:
 
-- `frontend/` — Next.js 14 (App Router, TypeScript, Tailwind). UI cho người dùng nhập bài viết, hiển thị điểm SEO, checklist, lịch sử.
-- `backend/` — FastAPI (Python 3.11+). Auth, lưu lịch sử phân tích, chạy 11 rule SEO, fetch Google Docs.
+- `frontend/` — Next.js 14 (App Router, TypeScript, Tailwind). UI nhập bài, hiển thị điểm SEO, checklist, lịch sử, settings, dark mode.
+- `backend/` — FastAPI (Python 3.11+). Auth, lưu lịch sử, chạy 37+ rule SEO, so sánh outline, fetch Google Docs / URL, AI proofread (Claude Sonnet 4.6), export Markdown/HTML.
 - `docker-compose.yml` — Postgres 16 chạy local cho dev.
 
 ## Yêu cầu môi trường
@@ -83,6 +83,7 @@ seo-checklist/
    | `JWT_SECRET` | sinh ngẫu nhiên: `openssl rand -hex 32` |
    | `JWT_ACCESS_TOKEN_EXPIRE_MINUTES` | `10080` (7 ngày) |
    | `CORS_ORIGINS` | `https://<frontend-tên>.vercel.app` (cập nhật sau khi Vercel deploy) |
+   | `ANTHROPIC_API_KEY` | (optional) key Anthropic để bật AI proofread. Để trống = disable. |
    | `ENVIRONMENT` | `production` |
 
    *Không cần `PORT` — Railway tự cung cấp.*

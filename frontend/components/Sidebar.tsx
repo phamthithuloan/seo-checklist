@@ -49,7 +49,7 @@ const LogoutIcon = ({ className }: IconProps) => (
 
 /* ───────── Data ───────── */
 
-export type ViewMode = "review" | "history";
+export type ViewMode = "review" | "history" | "checklist" | "settings";
 
 interface TopItem {
   id: TopId;
@@ -58,13 +58,13 @@ interface TopItem {
   badge?: string;
   soon?: boolean;
 }
-type TopId = ViewMode | "checklist" | "settings";
+type TopId = ViewMode;
 
 const TOP_LEVEL: TopItem[] = [
   { id: "review", label: "Review bài viết", Icon: ReviewIcon },
   { id: "history", label: "Lịch sử kiểm tra", Icon: HistoryIcon },
-  { id: "checklist", label: "Checklist SEO", Icon: ChecklistSeoIcon, soon: true },
-  { id: "settings", label: "Cài đặt", Icon: SettingsIcon, soon: true },
+  { id: "checklist", label: "Checklist SEO", Icon: ChecklistSeoIcon },
+  { id: "settings", label: "Cài đặt", Icon: SettingsIcon },
 ];
 
 interface SubItem {
@@ -75,9 +75,13 @@ interface SubItem {
 const SUB_ITEMS: SubItem[] = [
   { id: "overview", label: "Tổng quan" },
   { id: "cat-technical", label: "Technical SEO" },
-  { id: "cat-readability", label: "Readability" },
+  { id: "cat-readability", label: "Tốt cho người đọc" },
+  { id: "cat-ul-li", label: "UL-LI" },
+  { id: "cat-ai-opt", label: "Tối ưu AI" },
   { id: "cat-branding", label: "Branding" },
-  { id: "cat-cta", label: "CTA" },
+  { id: "cat-eeat", label: "E-E-A-T" },
+  { id: "cat-grammar", label: "Ngữ pháp" },
+  { id: "outline-comparison", label: "So sánh Outline" },
 ];
 
 const ALL_SUB_IDS = SUB_ITEMS.map((s) => s.id);
@@ -176,20 +180,31 @@ export default function Sidebar({
 
   const initial = (user?.name || user?.email || "?")[0]?.toUpperCase();
 
+  const AVATAR_COLOR_BG: Record<string, string> = {
+    emerald: "from-emerald-400 to-teal-500",
+    sky: "from-sky-400 to-blue-500",
+    violet: "from-violet-400 to-purple-500",
+    rose: "from-rose-400 to-pink-500",
+    amber: "from-amber-400 to-orange-500",
+    indigo: "from-indigo-400 to-blue-600",
+    slate: "from-slate-400 to-slate-600",
+    teal: "from-teal-400 to-cyan-500",
+  };
+  const avatarBg = AVATAR_COLOR_BG[user?.avatarColor || "emerald"] || AVATAR_COLOR_BG.emerald;
+
   return (
     <aside className="hidden lg:flex w-64 xl:w-72 shrink-0 flex-col border-r border-slate-200/70 bg-white/80 backdrop-blur sticky top-0 h-screen">
-      <div className="px-6 py-5">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-brand-500 to-violet-500 text-white grid place-items-center shadow-glow">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 5l-2 14M16 5l-2 14M5 9h14M4 15h14" />
-            </svg>
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-900 tracking-tight">SEO Reviewer</p>
-            <p className="text-xs text-slate-500 truncate">Content audit · v0.2</p>
-          </div>
-        </div>
+      <div className="px-1 pt-0 pb-0 overflow-hidden">
+        <a href="/" className="block">
+          <img
+            src="/mindgate-logo.png"
+            alt="MindGate"
+            className="w-full h-auto object-contain block -my-10"
+          />
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-4 text-center">
+            SEO Content Reviewer · v0.3
+          </p>
+        </a>
       </div>
 
       <nav className="flex-1 px-3 overflow-y-auto scrollbar-thin pb-4">
@@ -198,14 +213,10 @@ export default function Sidebar({
         </p>
         <ul className="space-y-0.5">
           {TOP_LEVEL.map((item) => {
-            const isActive =
-              (item.id === "review" || item.id === "history") &&
-              view === item.id;
+            const isActive = view === item.id;
             const onClick = () => {
               if (item.soon) return;
-              if (item.id === "review" || item.id === "history") {
-                onChangeView(item.id);
-              }
+              onChangeView(item.id as ViewMode);
             };
             const badge =
               item.id === "history" && typeof historyCount === "number"
@@ -252,7 +263,7 @@ export default function Sidebar({
           onClick={() => setMenuOpen((v) => !v)}
           className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition text-left"
         >
-          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white grid place-items-center text-sm font-semibold shrink-0">
+          <div className={`h-9 w-9 rounded-full bg-gradient-to-br ${avatarBg} text-white grid place-items-center text-sm font-semibold shrink-0`}>
             {initial}
           </div>
           <div className="flex-1 min-w-0">
@@ -295,7 +306,7 @@ function TopButton({
       }`}
     >
       {active && (
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-gradient-to-b from-brand-500 to-violet-500" />
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-gradient-to-b from-brand-500 to-brand-700" />
       )}
       <Icon
         className={`h-5 w-5 shrink-0 ${
