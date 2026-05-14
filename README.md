@@ -1,5 +1,9 @@
 # MindGate — SEO Content Reviewer
 
+**🚀 Live demo:** https://frontend-production-98c9.up.railway.app
+**🔧 API:** https://backend-production-9610.up.railway.app
+**📊 API docs:** https://backend-production-9610.up.railway.app/docs
+
 Monorepo:
 
 - `frontend/` — Next.js 14 (App Router, TypeScript, Tailwind). UI nhập bài, hiển thị điểm SEO, checklist, lịch sử, settings, dark mode.
