@@ -69,20 +69,20 @@ export default function OutlineComparisonView({ comparison }: Props) {
       : 0;
 
   return (
-    <section className="rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/70 animate-fade-up">
+    <section className="rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70 animate-fade-up">
       <header className="px-5 md:px-6 pt-5 pb-4 border-b border-slate-100">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 className="text-base font-semibold tracking-tight text-slate-900">
+            <h3 className="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">
               So sánh với Outline
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               {totalOutlineHeadings} heading trong outline · {totalContentHeadings} trong bài
             </p>
           </div>
           <div className="flex items-center gap-3">
             <span
-              className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ring-1 ${
+              className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ring-1${
                 coverage >= 80
                   ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
                   : coverage >= 50
@@ -96,7 +96,7 @@ export default function OutlineComparisonView({ comparison }: Props) {
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-600">
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
           <Pill dot="bg-emerald-500" label="Match" value={matched} />
           <Pill dot="bg-rose-500" label="Thiếu" value={missing} />
           <Pill dot="bg-amber-400" label="Thừa" value={extra} />
@@ -134,19 +134,19 @@ function HeadingRow({ heading }: { heading: OutlineHeading }) {
 
   return (
     <li className="relative">
-      <span className={`absolute left-0 top-0 bottom-0 w-1 ${meta.bar}`} />
-      <div className={`px-5 md:px-6 py-3.5 ${indent}`}>
+      <span className={`absolute left-0 top-0 bottom-0 w-1${meta.bar}`} />
+      <div className={`px-5 md:px-6 py-3.5${indent}`}>
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex items-start gap-2 min-w-0 flex-1">
-            <span className="text-[10px] font-mono text-slate-400 mt-1 shrink-0">
+            <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-1 shrink-0">
               H{heading.level}
             </span>
-            <p className="text-sm font-medium text-slate-900 leading-tight">
+            <p className="text-sm font-medium text-slate-900 dark:text-slate-100 leading-tight">
               {heading.title}
             </p>
           </div>
           <span
-            className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 shrink-0 ${meta.pill}`}
+            className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 shrink-0${meta.pill}`}
           >
             {meta.icon}
             {meta.label}
@@ -156,12 +156,12 @@ function HeadingRow({ heading }: { heading: OutlineHeading }) {
         {(wordCmp || fmtCmp) && (
           <div className="mt-1.5 flex flex-wrap gap-2 text-[11px]">
             {wordCmp && (
-              <span className="font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
+              <span className="font-medium px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
                 {wordCmp}
               </span>
             )}
             {fmtCmp && (
-              <span className="font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
+              <span className="font-medium px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
                 {fmtCmp}
               </span>
             )}
@@ -169,7 +169,7 @@ function HeadingRow({ heading }: { heading: OutlineHeading }) {
         )}
 
         {heading.note && (
-          <p className="mt-1.5 text-xs text-slate-600 italic">⚠ {heading.note}</p>
+          <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400 italic">⚠ {heading.note}</p>
         )}
       </div>
     </li>
@@ -179,9 +179,9 @@ function HeadingRow({ heading }: { heading: OutlineHeading }) {
 function Pill({ dot, label, value }: { dot: string; label: string; value: number }) {
   return (
     <span className="inline-flex items-center gap-1.5">
-      <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+      <span className={`h-1.5 w-1.5 rounded-full${dot}`} />
       {label}
-      <span className="font-semibold text-slate-900 num">{value}</span>
+      <span className="font-semibold text-slate-900 dark:text-slate-100 num">{value}</span>
     </span>
   );
 }

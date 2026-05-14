@@ -156,39 +156,39 @@ export default function CategorySection({
   const Icon = meta.Icon;
 
   return (
-    <section id={`cat-${meta.id}`} className="scroll-mt-24 rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/70 animate-fade-up">
+    <section id={`cat-${meta.id}`} className="scroll-mt-24 rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70 animate-fade-up">
       <header className="px-5 md:px-6 pt-5 pb-4 border-b border-slate-100">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3 min-w-0">
-            <div className={`h-11 w-11 rounded-xl ${meta.iconBg} ${meta.iconText} grid place-items-center ring-1 ${meta.ringTint}`}>
+            <div className={`h-11 w-11 rounded-xl${meta.iconBg}${meta.iconText}grid place-items-center ring-1${meta.ringTint}`}>
               <Icon className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-base font-semibold tracking-tight text-slate-900">
+              <h3 className="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">
                 {meta.label}
               </h3>
-              <p className="text-xs text-slate-500 truncate">{meta.description}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{meta.description}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full ring-1 ${tone.bg} ${tone.text} ${tone.ring}`}>
+            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full ring-1${tone.bg}${tone.text}${tone.ring}`}>
               <span className="h-1.5 w-1.5 rounded-full bg-current" />
               {tone.label}
             </span>
-            <span className="text-sm font-semibold text-slate-900 num">
+            <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 num">
               {pass}/{total}
             </span>
           </div>
         </div>
 
         <div className="mt-4">
-          <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
+          <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
             {passPct > 0 && <div className="bg-emerald-500" style={{ width: `${passPct}%` }} />}
             {warnPct > 0 && <div className="bg-amber-400" style={{ width: `${warnPct}%` }} />}
             {failPct > 0 && <div className="bg-rose-500" style={{ width: `${failPct}%` }} />}
           </div>
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-600">
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-600 dark:text-slate-400">
             <Pill dot="bg-emerald-500" label="Pass" value={pass} />
             <Pill dot="bg-amber-400" label="Warn" value={warn} />
             <Pill dot="bg-rose-500" label="Fail" value={fail} />
@@ -208,9 +208,9 @@ export default function CategorySection({
 function Pill({ dot, label, value }: { dot: string; label: string; value: number }) {
   return (
     <span className="inline-flex items-center gap-1.5">
-      <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+      <span className={`h-1.5 w-1.5 rounded-full${dot}`} />
       {label}
-      <span className="font-semibold text-slate-900 num">{value}</span>
+      <span className="font-semibold text-slate-900 dark:text-slate-100 num">{value}</span>
     </span>
   );
 }

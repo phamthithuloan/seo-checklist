@@ -22,7 +22,7 @@ const UploadIcon = () => (
 );
 
 const ChevronIcon = ({ open }: { open: boolean }) => (
-  <svg viewBox="0 0 24 24" className={`h-4 w-4 transition ${open ? "rotate-90" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg viewBox="0 0 24 24" className={`h-4 w-4 transition${open ? "rotate-90" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 6l6 6-6 6" />
   </svg>
 );
@@ -116,7 +116,7 @@ export default function OutlineInput({ outline, onOutlineChange }: Props) {
   };
 
   return (
-    <section className="rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/70">
+    <section className="rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -125,19 +125,19 @@ export default function OutlineInput({ outline, onOutlineChange }: Props) {
         <div className="flex items-center gap-3">
           <ChevronIcon open={open} />
           <div>
-            <h2 className="text-base font-semibold text-slate-900 tracking-tight">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 tracking-tight">
               So sánh với Outline{" "}
-              <span className="text-xs font-normal text-slate-500">
+              <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
                 (tuỳ chọn)
               </span>
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Nhập outline + annotation (vd <span className="font-mono">## H2 (200 từ, bullet)</span>) để so sánh cấu trúc, độ dài, format.
             </p>
           </div>
         </div>
         {outline && (
-          <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
+          <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-700">
             {headingCount} heading · {lineCount} dòng
           </span>
         )}
@@ -145,7 +145,7 @@ export default function OutlineInput({ outline, onOutlineChange }: Props) {
 
       {open && (
         <div className="px-6 pb-6 pt-2 space-y-3 border-t border-slate-100">
-          <div className="inline-flex rounded-xl bg-slate-100 p-1 flex-wrap">
+          <div className="inline-flex rounded-xl bg-slate-100 dark:bg-slate-700 p-1 flex-wrap">
             {(
               [
                 { id: "paste", label: "Paste text" },
@@ -158,7 +158,7 @@ export default function OutlineInput({ outline, onOutlineChange }: Props) {
                 key={t.id}
                 type="button"
                 onClick={() => setTab(t.id)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition${
                   tab === t.id
                     ? "bg-white text-slate-900 shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
@@ -186,7 +186,7 @@ export default function OutlineInput({ outline, onOutlineChange }: Props) {
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
-                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg ring-1 ring-slate-200 text-slate-700 hover:bg-slate-50 transition disabled:opacity-60"
+                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg ring-1 ring-slate-200 dark:ring-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-60"
               >
                 {uploading ? <SpinIcon /> : <UploadIcon />}
                 {uploading ? "Đang đọc..." : "Chọn outline .txt / .docx"}
@@ -200,13 +200,13 @@ export default function OutlineInput({ outline, onOutlineChange }: Props) {
                 value={gdocsUrl}
                 onChange={(e) => setGdocsUrl(e.target.value)}
                 placeholder="https://docs.google.com/document/d/.../edit (outline)"
-                className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
+                className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
               />
               <button
                 type="button"
                 onClick={handleFetchGdocs}
                 disabled={gdocsFetching || !gdocsUrl.trim()}
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl ring-1 ring-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl ring-1 ring-slate-200 dark:ring-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition"
               >
                 {gdocsFetching ? <SpinIcon /> : null}
                 {gdocsFetching ? "Đang tải..." : "Tải outline"}
@@ -220,13 +220,13 @@ export default function OutlineInput({ outline, onOutlineChange }: Props) {
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 placeholder="https://blog.com/outline-da-publish"
-                className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
+                className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
               />
               <button
                 type="button"
                 onClick={handleFetchUrl}
                 disabled={urlFetching || !urlInput.trim()}
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl ring-1 ring-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl ring-1 ring-slate-200 dark:ring-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition"
               >
                 {urlFetching ? <SpinIcon /> : null}
                 {urlFetching ? "Đang crawl..." : "Crawl URL"}
@@ -241,16 +241,16 @@ export default function OutlineInput({ outline, onOutlineChange }: Props) {
             placeholder={
               "# Tiêu đề chính\n## Mở đầu (Sapo) (200 từ, text)\n## Phần 1 (300, bullet)\n### Chi tiết 1.1 (150)\n## Phần 2\n## Kết luận (100, text)"
             }
-            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm font-mono leading-relaxed placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition resize-y"
+            className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-3 text-sm font-mono leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition resize-y"
           />
 
           {error && (
-            <div className="rounded-lg bg-rose-50 ring-1 ring-rose-200 px-3 py-2 text-sm text-rose-700">
+            <div className="rounded-lg bg-rose-50 dark:bg-rose-900/30 ring-1 ring-rose-200 dark:ring-rose-700 px-3 py-2 text-sm text-rose-700 dark:text-rose-300">
               {error}
             </div>
           )}
 
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Mỗi heading <span className="font-mono">## …</span> có thể kèm{" "}
             <span className="font-mono">(số_từ, format)</span> — format:{" "}
             <span className="font-mono">text</span> /{" "}
@@ -262,7 +262,7 @@ export default function OutlineInput({ outline, onOutlineChange }: Props) {
             <button
               type="button"
               onClick={() => onOutlineChange("")}
-              className="text-xs font-medium text-slate-500 hover:text-rose-600"
+              className="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-rose-600"
             >
               Xoá outline
             </button>

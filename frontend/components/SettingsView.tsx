@@ -25,7 +25,7 @@ export default function SettingsView() {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700">
+      <div className="rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70 dark:ring-slate-700">
         <nav className="flex flex-wrap gap-1 p-2 border-b border-slate-100 dark:border-slate-700">
           {(
             [
@@ -38,7 +38,7 @@ export default function SettingsView() {
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition${
                 tab === t.id
                   ? "bg-brand-50 text-brand-700 dark:bg-brand-500/20 dark:text-brand-200"
                   : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -149,7 +149,7 @@ function AccountTab() {
       <Section title="Ảnh đại diện">
         <div className="flex items-center gap-5">
           <div
-            className={`h-16 w-16 rounded-full ${colorMeta.bg} text-white grid place-items-center text-2xl font-semibold shrink-0`}
+            className={`h-16 w-16 rounded-full${colorMeta.bg}text-white grid place-items-center text-2xl font-semibold shrink-0`}
           >
             {initial}
           </div>
@@ -159,7 +159,7 @@ function AccountTab() {
                 key={c.id}
                 type="button"
                 onClick={() => setColor(c.id)}
-                className={`h-8 w-8 rounded-full ${c.bg} ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 transition ${
+                className={`h-8 w-8 rounded-full${c.bg}ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 transition${
                   color === c.id
                     ? c.ring
                     : "ring-transparent hover:ring-slate-300"
@@ -213,7 +213,7 @@ function AccountTab() {
             type="button"
             onClick={savePassword}
             disabled={pwSaving || !currentPw || !newPw || !confirmPw}
-            className="px-4 py-2 rounded-xl ring-1 ring-slate-200 dark:ring-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-medium disabled:opacity-50"
+            className="px-4 py-2 rounded-xl ring-1 ring-slate-200 dark:ring-slate-700 text-slate-700 dark:text-slate-300 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-medium disabled:opacity-50"
           >
             {pwSaving ? "Đang đổi..." : "Đổi mật khẩu"}
           </button>
@@ -264,7 +264,7 @@ function DisplayTab() {
                 setTheme(t.id);
                 update("theme", t.id);
               }}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition ring-1 ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition ring-1${
                 theme === t.id
                   ? "bg-brand-50 text-brand-700 ring-brand-200 dark:bg-brand-500/20 dark:text-brand-200 dark:ring-brand-400/40"
                   : "ring-slate-200 dark:ring-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -292,7 +292,7 @@ function DisplayTab() {
                 setFontSize(f.id);
                 update("fontSize", f.id);
               }}
-              className={`px-4 py-2 rounded-xl font-medium transition ring-1 ${f.sz} ${
+              className={`px-4 py-2 rounded-xl font-medium transition ring-1${f.sz}${
                 fontSize === f.id
                   ? "bg-brand-50 text-brand-700 ring-brand-200 dark:bg-brand-500/20 dark:text-brand-200 dark:ring-brand-400/40"
                   : "ring-slate-200 dark:ring-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -314,7 +314,7 @@ function DisplayTab() {
             setLanguage(e.target.value as Language);
             update("language", e.target.value as Language);
           }}
-          className="w-full md:w-64 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm"
+          className="w-full md:w-64 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 dark:bg-slate-800 px-3.5 py-2 text-sm"
         >
           <option value="vi">Tiếng Việt</option>
           <option value="en" disabled>
@@ -366,7 +366,7 @@ function NotificationsTab() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg bg-amber-50 dark:bg-amber-500/10 ring-1 ring-amber-200 dark:ring-amber-400/30 px-3 py-2 text-sm text-amber-800 dark:text-amber-200">
+      <div className="rounded-lg bg-amber-50 dark:bg-amber-900/30 dark:bg-amber-500/10 ring-1 ring-amber-200 dark:ring-amber-700 dark:ring-amber-400/30 px-3 py-2 text-sm text-amber-800 dark:text-amber-200">
         ⚠ Hệ thống email + push hiện chưa hoạt động. Thiết lập của bạn được lưu sẵn — sẽ áp dụng khi backend hỗ trợ.
       </div>
 
@@ -479,7 +479,7 @@ function Input({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-400/20 outline-none transition text-slate-900 dark:text-slate-100"
+      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 dark:bg-slate-800 px-3.5 py-2 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-400/20 outline-none transition text-slate-900 dark:text-slate-100"
     />
   );
 }
@@ -504,14 +504,14 @@ function ToggleRow({
       <button
         type="button"
         onClick={onChange}
-        className={`relative h-6 w-11 rounded-full transition shrink-0 ${
+        className={`relative h-6 w-11 rounded-full transition shrink-0${
           on ? "bg-brand-500" : "bg-slate-300 dark:bg-slate-600"
         }`}
         role="switch"
         aria-checked={on}
       >
         <span
-          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white dark:bg-slate-900 transition-transform${
             on ? "translate-x-5" : "translate-x-0.5"
           }`}
         />
@@ -523,14 +523,14 @@ function ToggleRow({
 function Toast({ kind, msg }: { kind: "ok" | "err"; msg: string }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ring-1 ${
+      className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ring-1${
         kind === "ok"
           ? "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/30"
           : "bg-rose-50 text-rose-700 ring-rose-200 dark:bg-rose-500/10 dark:text-rose-300 dark:ring-rose-400/30"
       }`}
     >
       <span
-        className={`h-1.5 w-1.5 rounded-full ${
+        className={`h-1.5 w-1.5 rounded-full${
           kind === "ok" ? "bg-emerald-500" : "bg-rose-500"
         }`}
       />

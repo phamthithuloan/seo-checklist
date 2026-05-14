@@ -158,15 +158,15 @@ export default function ChecklistSettings({ onChange }: Props) {
   return (
     <div className="space-y-5">
       {/* Toolbar */}
-      <div className="rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/70 px-5 md:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70 px-5 md:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-slate-900">
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
             Đang bật{" "}
             <span className="num text-brand-600">{stats.enabledCount}</span> /{" "}
             {stats.total} tiêu chí
           </p>
-          <p className="text-xs text-slate-500 mt-0.5">
-            <span className="text-emerald-700 font-mono">Auto</span> tự chấm ·{" "}
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <span className="text-emerald-700 dark:text-emerald-300 font-mono">Auto</span> tự chấm ·{" "}
             <span className="text-violet-700 font-mono">Config</span> cần điền
             input để tool chấm ·{" "}
             <span className="text-sky-700 font-mono">Heuristic</span> tool đoán
@@ -177,14 +177,14 @@ export default function ChecklistSettings({ onChange }: Props) {
           <button
             type="button"
             onClick={selectAll}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg ring-1 ring-slate-200 text-slate-700 hover:bg-slate-50 transition"
+            className="text-xs font-medium px-3 py-1.5 rounded-lg ring-1 ring-slate-200 dark:ring-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
           >
             Chọn hết
           </button>
           <button
             type="button"
             onClick={selectNone}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg ring-1 ring-slate-200 text-slate-700 hover:bg-slate-50 transition"
+            className="text-xs font-medium px-3 py-1.5 rounded-lg ring-1 ring-slate-200 dark:ring-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
           >
             Bỏ chọn
           </button>
@@ -196,7 +196,7 @@ export default function ChecklistSettings({ onChange }: Props) {
             Lưu lựa chọn
           </button>
           {savedToast && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-700">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               Đã lưu
             </span>
@@ -212,25 +212,25 @@ export default function ChecklistSettings({ onChange }: Props) {
         return (
           <section
             key={cat}
-            className="rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/70"
+            className="rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70"
           >
             <header className="px-5 md:px-6 pt-5 pb-3 border-b border-slate-100 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className={`h-9 w-9 rounded-xl ${meta.iconBg} ${meta.iconText} grid place-items-center ring-1 ${meta.ringTint}`}
+                  className={`h-9 w-9 rounded-xl${meta.iconBg}${meta.iconText}grid place-items-center ring-1${meta.ringTint}`}
                 >
                   <span className="text-sm font-semibold">{meta.label[0]}</span>
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-base font-semibold tracking-tight text-slate-900">
+                  <h3 className="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">
                     {meta.label}
                   </h3>
-                  <p className="text-xs text-slate-500 truncate">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                     {rules.length} tiêu chí
                   </p>
                 </div>
               </div>
-              <span className="text-sm font-semibold text-slate-900 num">
+              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 num">
                 {checked}/{rules.length}
               </span>
             </header>
@@ -250,20 +250,20 @@ export default function ChecklistSettings({ onChange }: Props) {
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-medium text-slate-900">
+                          <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
                             {r.label}
                           </span>
                           <KindChip kind={r.kind} />
                           {r.threshold && (
-                            <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
+                            <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400">
                               {r.threshold}
                             </span>
                           )}
-                          <span className="text-[10px] font-mono text-slate-400">
+                          <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">
                             {r.id}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                           {r.description}
                         </p>
                       </div>
@@ -285,7 +285,7 @@ export default function ChecklistSettings({ onChange }: Props) {
                               )
                             }
                             placeholder={r.placeholder}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition"
+                            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition"
                           />
                         ) : (
                           <textarea
@@ -301,7 +301,7 @@ export default function ChecklistSettings({ onChange }: Props) {
                             }
                             rows={3}
                             placeholder={r.placeholder}
-                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-mono placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition resize-y"
+                            className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm font-mono placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition resize-y"
                           />
                         )}
                       </div>
@@ -328,7 +328,7 @@ function KindChip({ kind }: { kind: "auto" | "config" | "heuristic" }) {
   ];
   return (
     <span
-      className={`text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded ring-1 ${styles[kind]}`}
+      className={`text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded ring-1${styles[kind]}`}
     >
       {label}
     </span>

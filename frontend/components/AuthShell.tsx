@@ -50,23 +50,23 @@ export function Field({
 }) {
   return (
     <div>
-      <label className="text-sm font-medium text-slate-800">{label}</label>
+      <label className="text-sm font-medium text-slate-800 dark:text-slate-200">{label}</label>
       <div className="mt-1.5">{children}</div>
-      {hint && <p className="mt-1.5 text-xs text-slate-500">{hint}</p>}
+      {hint && <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">{hint}</p>}
     </div>
   );
 }
 
 export function ErrorBanner({ message }: { message: string }) {
   return (
-    <div className="rounded-lg bg-rose-50 ring-1 ring-rose-200 px-3 py-2 text-sm text-rose-700">
+    <div className="rounded-lg bg-rose-50 dark:bg-rose-900/30 ring-1 ring-rose-200 dark:ring-rose-700 px-3 py-2 text-sm text-rose-700 dark:text-rose-300">
       {message}
     </div>
   );
 }
 
 const PWD_INPUT_CLS =
-  "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 pr-10 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition";
+  "w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 pr-10 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40 outline-none transition";
 
 export function PasswordInput({
   value,

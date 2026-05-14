@@ -193,7 +193,7 @@ export default function Sidebar({
   const avatarBg = AVATAR_COLOR_BG[user?.avatarColor || "emerald"] || AVATAR_COLOR_BG.emerald;
 
   return (
-    <aside className="hidden lg:flex w-64 xl:w-72 shrink-0 flex-col border-r border-slate-200/70 bg-white/80 backdrop-blur sticky top-0 h-screen">
+    <aside className="hidden lg:flex w-64 xl:w-72 shrink-0 flex-col border-r border-slate-200/70 dark:border-slate-700/70 bg-white/80 dark:bg-slate-900/80 backdrop-blur sticky top-0 h-screen">
       <div className="px-1 pt-0 pb-0 overflow-hidden">
         <a href="/" className="block">
           <img
@@ -242,16 +242,16 @@ export default function Sidebar({
         </ul>
       </nav>
 
-      <div className="p-3 border-t border-slate-200/70 relative" ref={menuRef}>
+      <div className="p-3 border-t border-slate-200/70 dark:border-slate-700/70 relative" ref={menuRef}>
         {menuOpen && (
-          <div className="absolute bottom-full left-3 right-3 mb-2 rounded-xl bg-white shadow-soft ring-1 ring-slate-200 overflow-hidden">
+          <div className="absolute bottom-full left-3 right-3 mb-2 rounded-xl bg-white dark:bg-slate-800 shadow-soft ring-1 ring-slate-200 dark:ring-slate-700 overflow-hidden">
             <button
               type="button"
               onClick={() => {
                 setMenuOpen(false);
                 logout();
               }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition"
             >
               <LogoutIcon className="h-4 w-4 text-slate-400" />
               Đăng xuất
@@ -261,16 +261,16 @@ export default function Sidebar({
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
-          className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition text-left"
+          className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left"
         >
           <div className={`h-9 w-9 rounded-full bg-gradient-to-br ${avatarBg} text-white grid place-items-center text-sm font-semibold shrink-0`}>
             {initial}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-slate-900 truncate">
+            <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
               {user?.name || user?.email || "Khách"}
             </p>
-            <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
           </div>
           <ChevronIcon
             className={`h-4 w-4 text-slate-400 transition ${
@@ -301,8 +301,8 @@ function TopButton({
       onClick={onClick}
       className={`group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition outline-none focus-visible:ring-2 focus-visible:ring-brand-300 ${
         active
-          ? "bg-brand-50 text-brand-700 font-medium"
-          : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+          ? "bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 font-medium"
+          : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
       }`}
     >
       {active && (
@@ -315,7 +315,7 @@ function TopButton({
       />
       <span className="flex-1 text-left truncate">{item.label}</span>
       {item.badge && (
-        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 num">
+        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 num">
           {item.badge}
         </span>
       )}
@@ -343,9 +343,9 @@ function SubMenu({
   const empty = available.size === 0;
 
   return (
-    <div className="mt-1 mb-2 ml-[26px] pl-3 border-l border-slate-200">
+    <div className="mt-1 mb-2 ml-[26px] pl-3 border-l border-slate-200 dark:border-slate-700">
       {empty && (
-        <p className="px-2 py-2 text-[12px] text-slate-400 italic">
+        <p className="px-2 py-2 text-[12px] text-slate-400 dark:text-slate-500 italic">
           Phân tích bài để xem mục lục
         </p>
       )}
@@ -385,10 +385,10 @@ function SubButton({
       disabled={disabled}
       className={`relative block w-full text-left text-[13px] pl-3 pr-2 py-1.5 -ml-[13px] rounded-r-lg transition outline-none focus-visible:ring-2 focus-visible:ring-brand-300 ${
         active
-          ? "border-l-2 border-brand-500 bg-brand-50/60 text-brand-700 font-medium"
+          ? "border-l-2 border-brand-500 bg-brand-50/60 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 font-medium"
           : disabled
-          ? "border-l border-transparent text-slate-300 cursor-not-allowed"
-          : "border-l border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+          ? "border-l border-transparent text-slate-300 dark:text-slate-600 cursor-not-allowed"
+          : "border-l border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
       }`}
     >
       {label}

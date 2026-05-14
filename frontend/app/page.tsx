@@ -138,7 +138,7 @@ export default function Page() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen grid place-items-center text-sm text-slate-500">
+      <div className="min-h-screen grid place-items-center text-sm text-slate-500 dark:text-slate-400">
         Đang tải…
       </div>
     );
@@ -153,7 +153,7 @@ export default function Page() {
       />
 
       <main className="flex-1 min-w-0">
-        <header className="sticky top-0 z-10 bg-white/70 backdrop-blur-md border-b border-slate-200/70">
+        <header className="sticky top-0 z-10 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border-b border-slate-200/70 dark:border-slate-700/70">
           <div className="max-w-7xl mx-auto px-5 md:px-8 py-4 flex items-center justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-600">
@@ -179,7 +179,7 @@ export default function Page() {
               {view === "review" && result && (
                 <ExportMenu analysisId={result.id} />
               )}
-              <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 ring-1 ring-brand-100 dark:bg-brand-500/10 dark:text-brand-300 dark:ring-brand-400/30">
+              <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-700 ring-1 ring-brand-100 dark:bg-brand-500/10 dark:text-brand-300 dark:ring-brand-400/30">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
                 Online
               </span>
@@ -191,10 +191,10 @@ export default function Page() {
           {view === "review" ? (
             <>
               <div className="space-y-1">
-                <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900">
+                <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
                   Phân tích bài viết SEO
                 </h2>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-slate-600 dark:text-slate-400">
                   Dán bài viết và nhập từ khóa chính. Hệ thống chấm điểm 11 tiêu chí, lưu lịch sử và cho phép xem lại.
                 </p>
               </div>
@@ -228,10 +228,10 @@ export default function Page() {
                   </div>
 
                   <div className="space-y-1">
-                    <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-900">
+                    <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
                       Checklist chi tiết
                     </h2>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
                       {result.totalChecks} tiêu chí, nhóm theo 4 lĩnh vực — ưu tiên xử lý các mục Fail trước.
                     </p>
                   </div>
@@ -275,10 +275,10 @@ export default function Page() {
           ) : view === "history" ? (
             <>
               <div className="space-y-1">
-                <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900">
+                <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
                   Lịch sử kiểm tra
                 </h2>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-slate-600 dark:text-slate-400">
                   Click một bài để mở lại điểm chi tiết + recommendation.
                 </p>
               </div>
@@ -290,10 +290,10 @@ export default function Page() {
           ) : (
             <>
               <div className="space-y-1">
-                <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900">
+                <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
                   Checklist SEO
                 </h2>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-slate-600 dark:text-slate-400">
                   Chọn tiêu chí muốn áp dụng. Lựa chọn lưu trên trình duyệt và áp dụng cho các lần phân tích tiếp theo.
                 </p>
               </div>
@@ -330,7 +330,7 @@ function ExportMenu({ analysisId }: { analysisId: string }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         disabled={busy}
-        className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg ring-1 ring-slate-200 text-slate-700 hover:bg-slate-50 transition disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg ring-1 ring-slate-200 dark:ring-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-50"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -339,25 +339,25 @@ function ExportMenu({ analysisId }: { analysisId: string }) {
         {busy ? "Đang xuất..." : "Export"}
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-white shadow-soft ring-1 ring-slate-200 overflow-hidden z-20">
+        <div className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200 dark:ring-slate-700 overflow-hidden z-20">
           <button
             type="button"
             onClick={() => download("markdown")}
-            className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+            className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
           >
             Markdown (.md)
           </button>
           <button
             type="button"
             onClick={() => download("html")}
-            className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+            className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
           >
             HTML (.html)
           </button>
         </div>
       )}
       {error && (
-        <div className="absolute right-0 top-full mt-1 px-2 py-1 text-xs bg-rose-50 ring-1 ring-rose-200 text-rose-700 rounded">
+        <div className="absolute right-0 top-full mt-1 px-2 py-1 text-xs bg-rose-50 dark:bg-rose-900/30 ring-1 ring-rose-200 dark:ring-rose-700 text-rose-700 dark:text-rose-300 rounded">
           {error}
         </div>
       )}
@@ -367,18 +367,18 @@ function ExportMenu({ analysisId }: { analysisId: string }) {
 
 function EmptyState() {
   return (
-    <div className="rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/70 p-10 md:p-14 text-center">
+    <div className="rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70 p-10 md:p-14 text-center">
       <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 grid place-items-center shadow-glow">
         <svg viewBox="0 0 24 24" className="h-7 w-7 text-white" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16zM21 21l-4.3-4.3" />
         </svg>
       </div>
-      <h3 className="mt-4 text-lg font-semibold tracking-tight text-slate-900">
+      <h3 className="mt-4 text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">
         Chưa có kết quả phân tích
       </h3>
-      <p className="mt-1 text-sm text-slate-600 max-w-md mx-auto">
+      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto">
         Nhập từ khóa chính + dán nội dung bài viết phía trên rồi bấm{" "}
-        <span className="font-medium text-slate-800">Phân tích</span> để xem điểm SEO và checklist chi tiết.
+        <span className="font-medium text-slate-800 dark:text-slate-200">Phân tích</span> để xem điểm SEO và checklist chi tiết.
       </p>
     </div>
   );

@@ -208,17 +208,17 @@ export default function InputForm({
   };
 
   return (
-    <section className="rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/70">
+    <section className="rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70">
       <div className="px-6 pt-5 pb-4 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-base font-semibold text-slate-900 tracking-tight">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 tracking-tight">
             Phân tích bài viết
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Paste text, upload file, hoặc dán URL Google Docs (công khai).
           </p>
         </div>
-        <span className="text-xs text-slate-500 num">{wordCount} từ</span>
+        <span className="text-xs text-slate-500 dark:text-slate-400 num">{wordCount} từ</span>
       </div>
 
       <div className="p-6 space-y-5">
@@ -228,7 +228,7 @@ export default function InputForm({
               value={keyword}
               onChange={(e) => onKeywordChange(e.target.value)}
               placeholder="vd: dịch vụ SEO tổng thể"
-              className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
             />
           </Field>
 
@@ -236,7 +236,7 @@ export default function InputForm({
             label="Meta description"
             hint="Tối đa 165 ký tự."
             right={
-              <span className={`text-xs num ${metaLeft < 0 ? "text-rose-600" : "text-slate-500"}`}>
+              <span className={`text-xs num${metaLeft < 0 ? "text-rose-600" : "text-slate-500"}`}>
                 {meta.length}/165
               </span>
             }
@@ -245,7 +245,7 @@ export default function InputForm({
               value={meta}
               onChange={(e) => onMetaChange(e.target.value)}
               placeholder="Mô tả ngắn cho thẻ meta..."
-              className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
             />
           </Field>
         </div>
@@ -255,14 +255,14 @@ export default function InputForm({
             value={title || ""}
             onChange={(e) => onTitleChange(e.target.value || null)}
             placeholder="vd: Hướng dẫn SEO 2026"
-            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
+            className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
           />
         </Field>
 
         <div>
-          <label className="text-sm font-medium text-slate-800">Nguồn nội dung</label>
+          <label className="text-sm font-medium text-slate-800 dark:text-slate-200">Nguồn nội dung</label>
 
-          <div className="inline-flex rounded-xl bg-slate-100 p-1 my-2 flex-wrap">
+          <div className="inline-flex rounded-xl bg-slate-100 dark:bg-slate-700 p-1 my-2 flex-wrap">
             {(
               [
                 { id: "paste", label: "Paste text" },
@@ -275,7 +275,7 @@ export default function InputForm({
                 key={t.id}
                 type="button"
                 onClick={() => setSourceTab(t.id)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition${
                   sourceType === t.id
                     ? "bg-white text-slate-900 shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
@@ -299,13 +299,13 @@ export default function InputForm({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg ring-1 ring-slate-200 text-slate-700 hover:bg-slate-50 transition disabled:opacity-60"
+                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg ring-1 ring-slate-200 dark:ring-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-60"
               >
                 {uploading ? <SpinIcon /> : <UploadIcon />}
                 {uploading ? "Đang đọc..." : "Chọn file .txt / .docx"}
               </button>
               {uploadedName && !uploadError && (
-                <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
+                <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-700">
                   <FileIcon />
                   <span className="font-medium">{uploadedName}</span>
                   <span className="text-emerald-500">·</span>
@@ -323,7 +323,7 @@ export default function InputForm({
                 </span>
               )}
               {uploadError && (
-                <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 ring-1 ring-rose-200">
+                <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 ring-1 ring-rose-200 dark:ring-rose-700">
                   <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
                   {uploadError}
                 </span>
@@ -338,23 +338,23 @@ export default function InputForm({
                   value={gdocsUrl}
                   onChange={(e) => setGdocsUrl(e.target.value)}
                   placeholder="https://docs.google.com/document/d/.../edit"
-                  className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
+                  className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
                 />
                 <button
                   type="button"
                   onClick={handleFetchGdocs}
                   disabled={gdocsFetching || !gdocsUrl.trim()}
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl ring-1 ring-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl ring-1 ring-slate-200 dark:ring-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition"
                 >
                   {gdocsFetching ? <SpinIcon /> : null}
                   {gdocsFetching ? "Đang tải..." : "Tải nội dung"}
                 </button>
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Doc phải đặt quyền <span className="font-mono">Anyone with link can view</span>.
               </p>
               {gdocsError && (
-                <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 ring-1 ring-rose-200">
+                <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 ring-1 ring-rose-200 dark:ring-rose-700">
                   <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
                   {gdocsError}
                 </span>
@@ -369,23 +369,23 @@ export default function InputForm({
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
                   placeholder="https://your-blog.com/bai-viet-da-publish"
-                  className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
+                  className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"
                 />
                 <button
                   type="button"
                   onClick={handleFetchUrl}
                   disabled={urlFetching || !urlInput.trim()}
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl ring-1 ring-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl ring-1 ring-slate-200 dark:ring-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 transition"
                 >
                   {urlFetching ? <SpinIcon /> : null}
                   {urlFetching ? "Đang crawl..." : "Crawl URL"}
                 </button>
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Paste URL bài viết đã publish trên website. Tool sẽ fetch HTML, strip nav/footer/script, chuyển thành markdown.
               </p>
               {urlError && (
-                <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 ring-1 ring-rose-200">
+                <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 ring-1 ring-rose-200 dark:ring-rose-700">
                   <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
                   {urlError}
                 </span>
@@ -409,7 +409,7 @@ export default function InputForm({
               if (sourceType !== "file") return;
               onDrop(e);
             }}
-            className={`relative rounded-xl transition ${
+            className={`relative rounded-xl transition${
               dragActive ? "ring-2 ring-brand-400 ring-offset-2 ring-offset-white" : ""
             }`}
           >
@@ -422,24 +422,24 @@ export default function InputForm({
                   ? "Nội dung sẽ tự fill sau khi tải Google Doc..."
                   : "# Tiêu đề\n\n## Mở đầu\n...\n\n## TL;DR\n- ...\n\n## FAQ\n..."
               }
-              className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm font-mono leading-relaxed placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition resize-y"
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-3 text-sm font-mono leading-relaxed placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition resize-y"
             />
             {dragActive && (
               <div className="pointer-events-none absolute inset-0 rounded-xl bg-brand-50/80 backdrop-blur-sm grid place-items-center">
                 <div className="text-center">
                   <UploadIcon />
-                  <p className="mt-2 text-sm font-medium text-brand-700">Thả file để tải lên</p>
+                  <p className="mt-2 text-sm font-medium text-brand-700 dark:text-brand-300">Thả file để tải lên</p>
                   <p className="text-xs text-brand-600">.txt hoặc .docx · tối đa 5 MB</p>
                 </div>
               </div>
             )}
           </div>
-          <p className="mt-1.5 text-xs text-slate-500">
+          <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
             Markdown được khuyến nghị — <span className="font-mono">## Heading</span>, <span className="font-mono">[anchor](/path)</span>.
           </p>
         </div>
 
-        <label className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-slate-50 ring-1 ring-slate-200 cursor-pointer hover:bg-slate-100 transition">
+        <label className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
           <input
             type="checkbox"
             checked={aiProofread}
@@ -448,14 +448,14 @@ export default function InputForm({
           />
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-slate-900">
+              <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
                 AI proofread ngữ pháp + chính tả
               </span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 ring-1 ring-amber-200">
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 ring-1 ring-amber-200 dark:ring-amber-700">
                 Mất phí
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Gọi Claude Sonnet 4.6 phát hiện lỗi ngữ pháp + chính tả tiếng Việt.
               ~$0.01–0.03 / bài. Cần <span className="font-mono">ANTHROPIC_API_KEY</span> ở backend.
             </p>
@@ -463,13 +463,13 @@ export default function InputForm({
         </label>
 
         {error && (
-          <div className="rounded-lg bg-rose-50 ring-1 ring-rose-200 px-3 py-2 text-sm text-rose-700">
+          <div className="rounded-lg bg-rose-50 dark:bg-rose-900/30 ring-1 ring-rose-200 dark:ring-rose-700 px-3 py-2 text-sm text-rose-700 dark:text-rose-300">
             {error}
           </div>
         )}
 
         <div className="flex items-center justify-between gap-3 pt-1">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {analyzing
               ? "Đang phân tích..."
               : canAnalyze
@@ -480,7 +480,7 @@ export default function InputForm({
             <button
               type="button"
               onClick={onClear}
-              className="px-4 py-2 rounded-xl text-sm text-slate-700 hover:bg-slate-100 transition"
+              className="px-4 py-2 rounded-xl text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
             >
               Xoá
             </button>
@@ -516,14 +516,14 @@ function Field({
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <label className="text-sm font-medium text-slate-800">
+        <label className="text-sm font-medium text-slate-800 dark:text-slate-200">
           {label}
           {required && <span className="text-rose-500 ml-0.5">*</span>}
         </label>
         {right}
       </div>
       {children}
-      {hint && <p className="mt-1.5 text-xs text-slate-500">{hint}</p>}
+      {hint && <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">{hint}</p>}
     </div>
   );
 }

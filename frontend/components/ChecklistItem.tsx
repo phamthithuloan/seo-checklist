@@ -27,7 +27,7 @@ const BulbIcon = () => (
   </svg>
 );
 const ChevronIcon = ({ open }: { open: boolean }) => (
-  <svg viewBox="0 0 24 24" className={`h-3.5 w-3.5 transition ${open ? "rotate-90" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg viewBox="0 0 24 24" className={`h-3.5 w-3.5 transition${open ? "rotate-90" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 6l6 6-6 6" />
   </svg>
 );
@@ -83,28 +83,28 @@ export default function ChecklistItem({ check }: { check: CheckResult }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <li id={`check-${check.id}`} className="scroll-mt-24 group relative overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-200/70 hover:ring-slate-300 transition">
-      <span className={`absolute left-0 top-0 bottom-0 w-1 ${s.leftBar}`} />
+    <li id={`check-${check.id}`} className="scroll-mt-24 group relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70 hover:ring-slate-300 transition">
+      <span className={`absolute left-0 top-0 bottom-0 w-1${s.leftBar}`} />
       <div className="p-5 pl-6 flex gap-4">
-        <div className={`h-9 w-9 shrink-0 rounded-xl ${s.iconBg} ${s.iconText} grid place-items-center shadow-sm`}>
+        <div className={`h-9 w-9 shrink-0 rounded-xl${s.iconBg}${s.iconText}grid place-items-center shadow-sm`}>
           <Icon />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3 flex-wrap">
-            <p className="font-semibold text-slate-900 leading-tight">{check.label}</p>
-            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 ${s.pillBg} ${s.pillText} ${s.pillRing}`}>
+            <p className="font-semibold text-slate-900 dark:text-slate-100 leading-tight">{check.label}</p>
+            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1${s.pillBg}${s.pillText}${s.pillRing}`}>
               <span className="h-1.5 w-1.5 rounded-full bg-current" />
               {s.label}
             </span>
           </div>
-          <p className="text-sm text-slate-600 mt-1">{check.detail}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{check.detail}</p>
 
           {hasIssues && (
             <div className="mt-3">
               <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
-                className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg ring-1 ring-slate-200 text-slate-700 hover:bg-slate-50 transition"
+                className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg ring-1 ring-slate-200 dark:ring-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
               >
                 <ChevronIcon open={open} />
                 {open ? "Ẩn" : "Xem"} {issues.length} điểm chi tiết
@@ -120,18 +120,18 @@ export default function ChecklistItem({ check }: { check: CheckResult }) {
           )}
 
           {check.recommendation && (
-            <div className="mt-3 rounded-xl bg-slate-50 ring-1 ring-slate-100 px-3 py-2.5 text-sm text-slate-700">
+            <div className="mt-3 rounded-xl bg-slate-50 dark:bg-slate-800 ring-1 ring-slate-100 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300">
               <div className="flex gap-2 items-start">
                 <span className="text-brand-500 mt-0.5 shrink-0">
                   <BulbIcon />
                 </span>
                 <p className="whitespace-pre-line">
-                  <span className="font-medium text-slate-900">Gợi ý: </span>
+                  <span className="font-medium text-slate-900 dark:text-slate-100">Gợi ý: </span>
                   {check.recommendation}
                 </p>
               </div>
               {check.example && (
-                <pre className="mt-2.5 ml-6 overflow-x-auto rounded-lg bg-white ring-1 ring-slate-200 px-3 py-2 text-[12.5px] leading-relaxed font-mono text-slate-700 whitespace-pre-wrap">
+                <pre className="mt-2.5 ml-6 overflow-x-auto rounded-lg bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-700 px-3 py-2 text-[12.5px] leading-relaxed font-mono text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
 {check.example}
                 </pre>
               )}
@@ -147,20 +147,20 @@ function IssueRow({ issue }: { issue: CheckIssue }) {
   const kindLabel = KIND_LABEL[issue.kind];
   const isCode = issue.kind === "sentence" || issue.kind === "paragraph" || issue.kind === "quote" || issue.kind === "link";
   return (
-    <li className="rounded-lg bg-white ring-1 ring-slate-200 px-3 py-2 text-sm">
+    <li className="rounded-lg bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-700 px-3 py-2 text-sm">
       <div className="flex items-start gap-2.5">
         {kindLabel && (
-          <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wider text-slate-500 mt-0.5 min-w-[55px]">
+          <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-0.5 min-w-[55px]">
             {kindLabel}
           </span>
         )}
         <span
-          className={`flex-1 min-w-0 break-words ${isCode ? "font-mono text-[12.5px] text-slate-700" : "text-slate-700"}`}
+          className={`flex-1 min-w-0 break-words${isCode ? "font-mono text-[12.5px] text-slate-700" : "text-slate-700"}`}
         >
           {issue.text}
         </span>
         {issue.note && (
-          <span className="shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-rose-50 text-rose-700 ring-1 ring-rose-200 mt-0.5">
+          <span className="shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 ring-1 ring-rose-200 dark:ring-rose-700 mt-0.5">
             {issue.note}
           </span>
         )}
