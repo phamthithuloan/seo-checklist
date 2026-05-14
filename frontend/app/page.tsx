@@ -195,7 +195,7 @@ export default function Page() {
                   Phân tích bài viết SEO
                 </h2>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Dán bài viết và nhập từ khóa chính. Hệ thống chấm điểm 11 tiêu chí, lưu lịch sử và cho phép xem lại.
+                  Dán bài viết và nhập từ khóa chính. Hệ thống chấm điểm 39 tiêu chí, lưu lịch sử và cho phép xem lại.
                 </p>
               </div>
 

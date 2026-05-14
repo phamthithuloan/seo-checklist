@@ -12,7 +12,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "MindGate — SEO Content Reviewer",
-  description: "MindGate giúp chấm điểm bài viết SEO theo 37+ tiêu chí + AI proofread.",
+  description: "MindGate giúp chấm điểm bài viết SEO theo 39 tiêu chí + AI proofread.",
   icons: { icon: "/mindgate-logo.png" },
 };
 

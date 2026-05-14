@@ -7,7 +7,7 @@
 Monorepo:
 
 - `frontend/` — Next.js 14 (App Router, TypeScript, Tailwind). UI nhập bài, hiển thị điểm SEO, checklist, lịch sử, settings, dark mode.
-- `backend/` — FastAPI (Python 3.11+). Auth, lưu lịch sử, chạy 37+ rule SEO, so sánh outline, fetch Google Docs / URL, AI proofread (Claude Sonnet 4.6), export Markdown/HTML.
+- `backend/` — FastAPI (Python 3.11+). Auth, lưu lịch sử, chạy 39 rule SEO, so sánh outline, fetch Google Docs / URL, AI proofread (Claude Sonnet 4.6), export Markdown/HTML.
 - `docker-compose.yml` — Postgres 16 chạy local cho dev.
 
 ## Yêu cầu môi trường
