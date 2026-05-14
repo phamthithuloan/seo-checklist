@@ -217,7 +217,7 @@ export default function ChecklistSettings({ onChange }: Props) {
             <header className="px-5 md:px-6 pt-5 pb-3 border-b border-slate-100 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className={`h-9 w-9 rounded-xl ${meta.iconBg}${meta.iconText} grid place-items-center ring-1 ${meta.ringTint}`}
+                  className={`h-9 w-9 rounded-xl ${meta.iconBg} ${meta.iconText} grid place-items-center ring-1 ${meta.ringTint}`}
                 >
                   <span className="text-sm font-semibold">{meta.label[0]}</span>
                 </div>

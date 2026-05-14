@@ -237,15 +237,22 @@ export default function Page() {
                   </div>
 
                   <div className="space-y-5">
-                    {CATEGORIES.map((cat) => (
-                      <CategorySection
-                        key={cat.id}
-                        meta={cat}
-                        checks={result.checks.filter(
-                          (c) => c.category === cat.id,
-                        )}
-                      />
-                    ))}
+                    {(() => {
+                      const enabled = new Set(getEnabledRules());
+                      const disabled = new Set(
+                        ALL_RULE_IDS.filter((id) => !enabled.has(id)),
+                      );
+                      return CATEGORIES.map((cat) => (
+                        <CategorySection
+                          key={cat.id}
+                          meta={cat}
+                          checks={result.checks.filter(
+                            (c) => c.category === cat.id,
+                          )}
+                          disabledRuleIds={disabled}
+                        />
+                      ));
+                    })()}
                   </div>
 
                   {result.outlineComparison && (

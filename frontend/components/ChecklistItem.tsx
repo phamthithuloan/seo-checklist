@@ -86,13 +86,13 @@ export default function ChecklistItem({ check }: { check: CheckResult }) {
     <li id={`check-${check.id}`} className="scroll-mt-24 group relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70 hover:ring-slate-300 transition">
       <span className={`absolute left-0 top-0 bottom-0 w-1 ${s.leftBar}`} />
       <div className="p-5 pl-6 flex gap-4">
-        <div className={`h-9 w-9 shrink-0 rounded-xl ${s.iconBg}${s.iconText} grid place-items-center shadow-sm`}>
+        <div className={`h-9 w-9 shrink-0 rounded-xl ${s.iconBg} ${s.iconText} grid place-items-center shadow-sm`}>
           <Icon />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <p className="font-semibold text-slate-900 dark:text-slate-100 leading-tight">{check.label}</p>
-            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 ${s.pillBg}${s.pillText}${s.pillRing}`}>
+            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 ${s.pillBg} ${s.pillText} ${s.pillRing}`}>
               <span className="h-1.5 w-1.5 rounded-full bg-current" />
               {s.label}
             </span>
@@ -137,6 +137,51 @@ export default function ChecklistItem({ check }: { check: CheckResult }) {
               )}
             </div>
           )}
+        </div>
+      </div>
+    </li>
+  );
+}
+
+export function SkippedRuleItem({
+  label,
+  threshold,
+  description,
+  reason,
+}: {
+  label: string;
+  threshold?: string;
+  description?: string;
+  reason: string;
+}) {
+  return (
+    <li className="group relative overflow-hidden rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 ring-1 ring-slate-200/60 dark:ring-slate-700/60 opacity-60">
+      <span className="absolute left-0 top-0 bottom-0 w-1 bg-slate-300 dark:bg-slate-600" />
+      <div className="p-4 pl-5 flex gap-3">
+        <div className="h-9 w-9 shrink-0 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 grid place-items-center">
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <p className="font-medium text-slate-700 dark:text-slate-300 leading-tight line-through decoration-slate-300 decoration-1">
+              {label}
+            </p>
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 ring-slate-200 dark:ring-slate-600">
+              <span className="h-1.5 w-1.5 rounded-full bg-current" />
+              Bỏ qua
+            </span>
+          </div>
+          {description && (
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              {description}
+              {threshold && <span className="ml-1 num">({threshold})</span>}
+            </p>
+          )}
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5 italic">
+            {reason}
+          </p>
         </div>
       </div>
     </li>

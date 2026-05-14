@@ -292,7 +292,7 @@ function DisplayTab() {
                 setFontSize(f.id);
                 update("fontSize", f.id);
               }}
-              className={`px-4 py-2 rounded-xl font-medium transition ring-1 ${f.sz}${
+              className={`px-4 py-2 rounded-xl font-medium transition ring-1 ${f.sz} ${
                 fontSize === f.id
                   ? "bg-brand-50 text-brand-700 ring-brand-200 dark:bg-brand-500/20 dark:text-brand-200 dark:ring-brand-400/40"
                   : "ring-slate-200 dark:ring-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"

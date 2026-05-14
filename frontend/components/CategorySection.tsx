@@ -1,7 +1,8 @@
 "use client";
 
 import type { CategoryId, CheckResult } from "@/lib/types";
-import ChecklistItem from "./ChecklistItem";
+import { ALL_RULES } from "@/lib/checklist-rules";
+import ChecklistItem, { SkippedRuleItem } from "./ChecklistItem";
 
 type IconProps = { className?: string };
 
@@ -139,13 +140,28 @@ function statusColor(passPct: number) {
 export default function CategorySection({
   meta,
   checks,
+  disabledRuleIds,
 }: {
   meta: CategoryMeta;
   checks: CheckResult[];
+  disabledRuleIds?: Set<string>;
 }) {
-  if (checks.length === 0) return null;
+  const ruleMetasInCategory = ALL_RULES.filter((r) => r.category === meta.id);
+  const disabled = disabledRuleIds ?? new Set<string>();
+  const checkIds = new Set(checks.map((c) => c.id));
+  const skippedRules = ruleMetasInCategory.filter(
+    (r) => !checkIds.has(r.id) && disabled.has(r.id),
+  );
 
-  const total = checks.length;
+  const isGrammarInactive =
+    meta.id === "grammar" && checks.length === 0;
+
+  // Hide non-grammar sections that have nothing to show.
+  if (checks.length === 0 && skippedRules.length === 0 && !isGrammarInactive) {
+    return null;
+  }
+
+  const total = Math.max(checks.length, 1);
   const pass = checks.filter((c) => c.status === "pass").length;
   const warn = checks.filter((c) => c.status === "warn").length;
   const fail = checks.filter((c) => c.status === "fail").length;
@@ -160,7 +176,7 @@ export default function CategorySection({
       <header className="px-5 md:px-6 pt-5 pb-4 border-b border-slate-100">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3 min-w-0">
-            <div className={`h-11 w-11 rounded-xl ${meta.iconBg}${meta.iconText} grid place-items-center ring-1 ${meta.ringTint}`}>
+            <div className={`h-11 w-11 rounded-xl ${meta.iconBg} ${meta.iconText} grid place-items-center ring-1 ${meta.ringTint}`}>
               <Icon className="h-5 w-5" />
             </div>
             <div className="min-w-0">
@@ -172,7 +188,7 @@ export default function CategorySection({
           </div>
 
           <div className="flex items-center gap-3">
-            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full ring-1 ${tone.bg}${tone.text}${tone.ring}`}>
+            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full ring-1 ${tone.bg} ${tone.text} ${tone.ring}`}>
               <span className="h-1.5 w-1.5 rounded-full bg-current" />
               {tone.label}
             </span>
@@ -197,8 +213,41 @@ export default function CategorySection({
       </header>
 
       <ul className="p-4 md:p-5 space-y-3">
+        {isGrammarInactive && (
+          <li className="rounded-2xl bg-amber-50 dark:bg-amber-900/20 ring-1 ring-amber-200 dark:ring-amber-800 p-5">
+            <p className="text-sm font-semibold text-amber-800 dark:text-amber-200 mb-2">
+              ⚠ AI proofread không chạy cho bài này
+            </p>
+            <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+              Tính năng kiểm tra ngữ pháp & chính tả bằng Claude Sonnet 4.6 hiện
+              không trả về kết quả. Các nguyên nhân có thể:
+            </p>
+            <ul className="mt-2 text-xs text-amber-700 dark:text-amber-300 space-y-1 list-disc list-inside">
+              <li>
+                Bạn chưa tick checkbox <strong>"AI proofread ngữ pháp + chính tả"</strong>{" "}
+                trong form nhập bài.
+              </li>
+              <li>
+                Backend chưa cấu hình <code>ANTHROPIC_API_KEY</code> — admin
+                cần set biến môi trường này trên Railway.
+              </li>
+              <li>
+                Bài không có lỗi ngữ pháp/chính tả nào được phát hiện (hiếm).
+              </li>
+            </ul>
+          </li>
+        )}
         {checks.map((c) => (
           <ChecklistItem key={c.id} check={c} />
+        ))}
+        {skippedRules.map((r) => (
+          <SkippedRuleItem
+            key={r.id}
+            label={r.label}
+            threshold={r.threshold}
+            description={r.description}
+            reason="Bạn đã tắt tiêu chí này trong Checklist SEO → không tính vào điểm."
+          />
         ))}
       </ul>
     </section>
