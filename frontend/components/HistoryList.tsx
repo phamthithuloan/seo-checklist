@@ -10,10 +10,11 @@ interface Props {
 }
 
 function tierColor(score: number) {
-  if (score >= 85) return "text-emerald-600 bg-emerald-50 ring-emerald-100";
-  if (score >= 70) return "text-emerald-600 bg-emerald-50 ring-emerald-100";
-  if (score >= 50) return "text-amber-600 bg-amber-50 ring-amber-100";
-  return "text-rose-600 bg-rose-50 ring-rose-100";
+  if (score >= 70)
+    return "text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/40 ring-emerald-200 dark:ring-emerald-700";
+  if (score >= 50)
+    return "text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/40 ring-amber-200 dark:ring-amber-700";
+  return "text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-900/40 ring-rose-200 dark:ring-rose-700";
 }
 
 function formatDate(iso: string) {
@@ -132,11 +133,11 @@ export default function HistoryList({ refreshKey = 0, onOpen }: Props) {
                       {it.keyword}
                     </span>
                   </span>
-                  <span className="text-slate-300">·</span>
+                  <span className="text-slate-300 dark:text-slate-600">·</span>
                   <span className="num">{it.wordCount} từ</span>
-                  <span className="text-slate-300">·</span>
+                  <span className="text-slate-300 dark:text-slate-600">·</span>
                   <span>{sourceLabel(it.sourceType)}</span>
-                  <span className="text-slate-300">·</span>
+                  <span className="text-slate-300 dark:text-slate-600">·</span>
                   <span>{formatDate(it.createdAt)}</span>
                 </div>
               </button>
@@ -144,15 +145,15 @@ export default function HistoryList({ refreshKey = 0, onOpen }: Props) {
 
             <div className="flex items-center gap-3 shrink-0">
               <span
-                className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ring-1${tierColor(it.score)}`}
+                className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ring-1 ${tierColor(it.score)}`}
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-current" />
                 <span className="num">{it.score}/100</span>
               </span>
-              <span className="hidden md:inline-flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 num">
-                <span className="text-emerald-600">{it.passCount}</span>
-                <span className="text-amber-500">{it.warnCount}</span>
-                <span className="text-rose-500">{it.failCount}</span>
+              <span className="hidden md:inline-flex items-center gap-2 text-[11px] num">
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{it.passCount}</span>
+                <span className="text-amber-600 dark:text-amber-400 font-semibold">{it.warnCount}</span>
+                <span className="text-rose-600 dark:text-rose-400 font-semibold">{it.failCount}</span>
               </span>
               <button
                 type="button"
