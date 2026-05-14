@@ -27,7 +27,7 @@ const BulbIcon = () => (
   </svg>
 );
 const ChevronIcon = ({ open }: { open: boolean }) => (
-  <svg viewBox="0 0 24 24" className={`h-3.5 w-3.5 transition${open ? "rotate-90" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg viewBox="0 0 24 24" className={`h-3.5 w-3.5 transition ${open ? "rotate-90" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 6l6 6-6 6" />
   </svg>
 );
@@ -84,15 +84,15 @@ export default function ChecklistItem({ check }: { check: CheckResult }) {
 
   return (
     <li id={`check-${check.id}`} className="scroll-mt-24 group relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70 hover:ring-slate-300 transition">
-      <span className={`absolute left-0 top-0 bottom-0 w-1${s.leftBar}`} />
+      <span className={`absolute left-0 top-0 bottom-0 w-1 ${s.leftBar}`} />
       <div className="p-5 pl-6 flex gap-4">
-        <div className={`h-9 w-9 shrink-0 rounded-xl${s.iconBg}${s.iconText}grid place-items-center shadow-sm`}>
+        <div className={`h-9 w-9 shrink-0 rounded-xl ${s.iconBg}${s.iconText} grid place-items-center shadow-sm`}>
           <Icon />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <p className="font-semibold text-slate-900 dark:text-slate-100 leading-tight">{check.label}</p>
-            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1${s.pillBg}${s.pillText}${s.pillRing}`}>
+            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 ${s.pillBg}${s.pillText}${s.pillRing}`}>
               <span className="h-1.5 w-1.5 rounded-full bg-current" />
               {s.label}
             </span>
@@ -155,7 +155,7 @@ function IssueRow({ issue }: { issue: CheckIssue }) {
           </span>
         )}
         <span
-          className={`flex-1 min-w-0 break-words${isCode ? "font-mono text-[12.5px] text-slate-700" : "text-slate-700"}`}
+          className={`flex-1 min-w-0 break-words ${isCode ? "font-mono text-[12.5px] text-slate-700" : "text-slate-700"}`}
         >
           {issue.text}
         </span>

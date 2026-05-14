@@ -236,7 +236,7 @@ export default function InputForm({
             label="Meta description"
             hint="Tối đa 165 ký tự."
             right={
-              <span className={`text-xs num${metaLeft < 0 ? "text-rose-600" : "text-slate-500"}`}>
+              <span className={`text-xs num ${metaLeft < 0 ? "text-rose-600" : "text-slate-500"}`}>
                 {meta.length}/165
               </span>
             }
@@ -275,7 +275,7 @@ export default function InputForm({
                 key={t.id}
                 type="button"
                 onClick={() => setSourceTab(t.id)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition${
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition ${
                   sourceType === t.id
                     ? "bg-white text-slate-900 shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
@@ -409,7 +409,7 @@ export default function InputForm({
               if (sourceType !== "file") return;
               onDrop(e);
             }}
-            className={`relative rounded-xl transition${
+            className={`relative rounded-xl transition ${
               dragActive ? "ring-2 ring-brand-400 ring-offset-2 ring-offset-white" : ""
             }`}
           >

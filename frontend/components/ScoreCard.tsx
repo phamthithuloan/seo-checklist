@@ -59,7 +59,7 @@ export default function ScoreCard({ result }: { result: AnalysisResult }) {
 
           <div className="flex-1 min-w-0 flex flex-col justify-center">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-700${tier.text}`}>
+              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-700 ${tier.text}`}>
                 <span className="h-1.5 w-1.5 rounded-full bg-current" />
                 {tier.label}
               </span>
@@ -142,7 +142,7 @@ export default function ScoreCard({ result }: { result: AnalysisResult }) {
 function Legend({ dot, label, value }: { dot: string; label: string; value: number }) {
   return (
     <span className="inline-flex items-center gap-1.5">
-      <span className={`h-2 w-2 rounded-full${dot}`} />
+      <span className={`h-2 w-2 rounded-full ${dot}`} />
       <span>{label}</span>
       <span className="font-semibold text-slate-900 dark:text-slate-100 num">{value}</span>
     </span>
@@ -168,7 +168,7 @@ function Stat({
     <div className="rounded-2xl bg-white dark:bg-slate-900 p-5 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70 flex flex-col justify-between">
       <p className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</p>
       <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 num">{value}</p>
-      <p className={`mt-3 inline-flex w-fit items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full ring-1${tones[tone]}`}>
+      <p className={`mt-3 inline-flex w-fit items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full ring-1 ${tones[tone]}`}>
         <span className="h-1.5 w-1.5 rounded-full bg-current" />
         {hint}
       </p>

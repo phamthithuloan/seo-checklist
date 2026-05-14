@@ -82,7 +82,7 @@ export default function OutlineComparisonView({ comparison }: Props) {
           </div>
           <div className="flex items-center gap-3">
             <span
-              className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ring-1${
+              className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ring-1 ${
                 coverage >= 80
                   ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
                   : coverage >= 50
@@ -134,8 +134,8 @@ function HeadingRow({ heading }: { heading: OutlineHeading }) {
 
   return (
     <li className="relative">
-      <span className={`absolute left-0 top-0 bottom-0 w-1${meta.bar}`} />
-      <div className={`px-5 md:px-6 py-3.5${indent}`}>
+      <span className={`absolute left-0 top-0 bottom-0 w-1 ${meta.bar}`} />
+      <div className={`px-5 md:px-6 py-3.5 ${indent}`}>
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex items-start gap-2 min-w-0 flex-1">
             <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-1 shrink-0">
@@ -146,7 +146,7 @@ function HeadingRow({ heading }: { heading: OutlineHeading }) {
             </p>
           </div>
           <span
-            className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 shrink-0${meta.pill}`}
+            className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 shrink-0 ${meta.pill}`}
           >
             {meta.icon}
             {meta.label}
@@ -179,7 +179,7 @@ function HeadingRow({ heading }: { heading: OutlineHeading }) {
 function Pill({ dot, label, value }: { dot: string; label: string; value: number }) {
   return (
     <span className="inline-flex items-center gap-1.5">
-      <span className={`h-1.5 w-1.5 rounded-full${dot}`} />
+      <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
       {label}
       <span className="font-semibold text-slate-900 dark:text-slate-100 num">{value}</span>
     </span>

@@ -194,19 +194,19 @@ export default function Sidebar({
 
   return (
     <aside className="hidden lg:flex w-64 xl:w-72 shrink-0 flex-col border-r border-slate-200/70 dark:border-slate-700/70 bg-white/80 dark:bg-slate-900/80 backdrop-blur sticky top-0 h-screen">
-      <div className="px-1 pt-0 pb-0 overflow-hidden">
+      <div className="px-4 pt-3 pb-1 overflow-hidden">
         <a href="/" className="block">
           <img
             src="/mindgate-logo.png"
             alt="MindGate"
-            className="w-full h-auto object-contain block dark:hidden -my-10"
+            className="w-full h-auto object-contain block dark:hidden -my-6"
           />
           <img
             src="/mindgate-logo-dark.png"
             alt="MindGate"
-            className="w-full h-auto object-contain hidden dark:block -my-10"
+            className="w-full h-auto object-contain hidden dark:block -my-6"
           />
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-4 text-center">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-2 text-center">
             SEO Content Reviewer · v0.3
           </p>
         </a>

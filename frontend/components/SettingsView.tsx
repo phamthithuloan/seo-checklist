@@ -38,7 +38,7 @@ export default function SettingsView() {
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition${
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
                 tab === t.id
                   ? "bg-brand-50 text-brand-700 dark:bg-brand-500/20 dark:text-brand-200"
                   : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -149,7 +149,7 @@ function AccountTab() {
       <Section title="Ảnh đại diện">
         <div className="flex items-center gap-5">
           <div
-            className={`h-16 w-16 rounded-full${colorMeta.bg}text-white grid place-items-center text-2xl font-semibold shrink-0`}
+            className={`h-16 w-16 rounded-full ${colorMeta.bg} text-white grid place-items-center text-2xl font-semibold shrink-0`}
           >
             {initial}
           </div>
@@ -159,7 +159,7 @@ function AccountTab() {
                 key={c.id}
                 type="button"
                 onClick={() => setColor(c.id)}
-                className={`h-8 w-8 rounded-full${c.bg}ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 transition${
+                className={`h-8 w-8 rounded-full ${c.bg} ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 transition ${
                   color === c.id
                     ? c.ring
                     : "ring-transparent hover:ring-slate-300"
@@ -264,7 +264,7 @@ function DisplayTab() {
                 setTheme(t.id);
                 update("theme", t.id);
               }}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition ring-1${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition ring-1 ${
                 theme === t.id
                   ? "bg-brand-50 text-brand-700 ring-brand-200 dark:bg-brand-500/20 dark:text-brand-200 dark:ring-brand-400/40"
                   : "ring-slate-200 dark:ring-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -292,7 +292,7 @@ function DisplayTab() {
                 setFontSize(f.id);
                 update("fontSize", f.id);
               }}
-              className={`px-4 py-2 rounded-xl font-medium transition ring-1${f.sz}${
+              className={`px-4 py-2 rounded-xl font-medium transition ring-1 ${f.sz}${
                 fontSize === f.id
                   ? "bg-brand-50 text-brand-700 ring-brand-200 dark:bg-brand-500/20 dark:text-brand-200 dark:ring-brand-400/40"
                   : "ring-slate-200 dark:ring-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -496,41 +496,49 @@ function ToggleRow({
   onChange: () => void;
 }) {
   return (
-    <label className="flex items-start justify-between gap-3 py-3 border-b border-slate-100 dark:border-slate-700 last:border-0 cursor-pointer">
+    <div
+      onClick={onChange}
+      role="switch"
+      aria-checked={on}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === " " || e.key === "Enter") {
+          e.preventDefault();
+          onChange();
+        }
+      }}
+      className="flex items-start justify-between gap-3 py-3 border-b border-slate-100 dark:border-slate-700 last:border-0 cursor-pointer select-none"
+    >
       <div className="min-w-0">
         <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{label}</p>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{desc}</p>
       </div>
-      <button
-        type="button"
-        onClick={onChange}
-        className={`relative h-6 w-11 rounded-full transition shrink-0${
+      <span
+        className={`relative h-6 w-11 rounded-full transition shrink-0 ${
           on ? "bg-brand-500" : "bg-slate-300 dark:bg-slate-600"
         }`}
-        role="switch"
-        aria-checked={on}
       >
         <span
-          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white dark:bg-slate-900 transition-transform${
+          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
             on ? "translate-x-5" : "translate-x-0.5"
           }`}
         />
-      </button>
-    </label>
+      </span>
+    </div>
   );
 }
 
 function Toast({ kind, msg }: { kind: "ok" | "err"; msg: string }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ring-1${
+      className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ring-1 ${
         kind === "ok"
           ? "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/30"
           : "bg-rose-50 text-rose-700 ring-rose-200 dark:bg-rose-500/10 dark:text-rose-300 dark:ring-rose-400/30"
       }`}
     >
       <span
-        className={`h-1.5 w-1.5 rounded-full${
+        className={`h-1.5 w-1.5 rounded-full ${
           kind === "ok" ? "bg-emerald-500" : "bg-rose-500"
         }`}
       />

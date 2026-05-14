@@ -160,7 +160,7 @@ export default function CategorySection({
       <header className="px-5 md:px-6 pt-5 pb-4 border-b border-slate-100">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3 min-w-0">
-            <div className={`h-11 w-11 rounded-xl${meta.iconBg}${meta.iconText}grid place-items-center ring-1${meta.ringTint}`}>
+            <div className={`h-11 w-11 rounded-xl ${meta.iconBg}${meta.iconText} grid place-items-center ring-1 ${meta.ringTint}`}>
               <Icon className="h-5 w-5" />
             </div>
             <div className="min-w-0">
@@ -172,7 +172,7 @@ export default function CategorySection({
           </div>
 
           <div className="flex items-center gap-3">
-            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full ring-1${tone.bg}${tone.text}${tone.ring}`}>
+            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full ring-1 ${tone.bg}${tone.text}${tone.ring}`}>
               <span className="h-1.5 w-1.5 rounded-full bg-current" />
               {tone.label}
             </span>
@@ -208,7 +208,7 @@ export default function CategorySection({
 function Pill({ dot, label, value }: { dot: string; label: string; value: number }) {
   return (
     <span className="inline-flex items-center gap-1.5">
-      <span className={`h-1.5 w-1.5 rounded-full${dot}`} />
+      <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
       {label}
       <span className="font-semibold text-slate-900 dark:text-slate-100 num">{value}</span>
     </span>

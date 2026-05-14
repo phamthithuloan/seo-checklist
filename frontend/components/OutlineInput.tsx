@@ -22,7 +22,7 @@ const UploadIcon = () => (
 );
 
 const ChevronIcon = ({ open }: { open: boolean }) => (
-  <svg viewBox="0 0 24 24" className={`h-4 w-4 transition${open ? "rotate-90" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg viewBox="0 0 24 24" className={`h-4 w-4 transition ${open ? "rotate-90" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 6l6 6-6 6" />
   </svg>
 );
@@ -158,7 +158,7 @@ export default function OutlineInput({ outline, onOutlineChange }: Props) {
                 key={t.id}
                 type="button"
                 onClick={() => setTab(t.id)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition${
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition ${
                   tab === t.id
                     ? "bg-white text-slate-900 shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
