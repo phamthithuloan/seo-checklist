@@ -199,7 +199,12 @@ export default function Sidebar({
           <img
             src="/mindgate-logo.png"
             alt="MindGate"
-            className="w-full h-auto object-contain block -my-10"
+            className="w-full h-auto object-contain block dark:hidden -my-10"
+          />
+          <img
+            src="/mindgate-logo-dark.png"
+            alt="MindGate"
+            className="w-full h-auto object-contain hidden dark:block -my-10"
           />
           <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-4 text-center">
             SEO Content Reviewer · v0.3

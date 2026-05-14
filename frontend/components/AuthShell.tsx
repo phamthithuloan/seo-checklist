@@ -18,7 +18,12 @@ export function AuthShell({
           <img
             src="/mindgate-logo.png"
             alt="MindGate"
-            className="h-48 w-auto"
+            className="h-48 w-auto block dark:hidden"
+          />
+          <img
+            src="/mindgate-logo-dark.png"
+            alt="MindGate"
+            className="h-48 w-auto hidden dark:block"
           />
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             SEO Content Reviewer
