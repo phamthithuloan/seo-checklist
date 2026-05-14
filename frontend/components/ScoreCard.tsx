@@ -3,10 +3,10 @@
 import type { AnalysisResult } from "@/lib/types";
 
 function tierFor(score: number) {
-  if (score >= 85) return { label: "Excellent", text: "text-emerald-600", grad: ["#10b981", "#059669"] };
-  if (score >= 70) return { label: "Good", text: "text-emerald-600", grad: ["#22c55e", "#10b981"] };
-  if (score >= 50) return { label: "Needs work", text: "text-amber-600", grad: ["#f59e0b", "#f97316"] };
-  return { label: "Poor", text: "text-rose-600", grad: ["#f43f5e", "#e11d48"] };
+  if (score >= 85) return { label: "Excellent", text: "text-emerald-600 dark:text-emerald-300", grad: ["#10b981", "#059669"] };
+  if (score >= 70) return { label: "Good", text: "text-emerald-600 dark:text-emerald-300", grad: ["#22c55e", "#10b981"] };
+  if (score >= 50) return { label: "Needs work", text: "text-amber-600 dark:text-amber-300", grad: ["#f59e0b", "#f97316"] };
+  return { label: "Poor", text: "text-rose-600 dark:text-rose-300", grad: ["#f43f5e", "#e11d48"] };
 }
 
 export default function ScoreCard({ result }: { result: AnalysisResult }) {
@@ -23,8 +23,8 @@ export default function ScoreCard({ result }: { result: AnalysisResult }) {
     <section className="grid grid-cols-1 lg:grid-cols-3 gap-5 animate-fade-up">
       {/* Hero score card */}
       <div className="lg:col-span-2 relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-50 via-white to-white pointer-events-none" />
-        <div className="absolute -top-24 -right-24 h-60 w-60 rounded-full bg-gradient-to-br from-brand-200/60 to-brand-300/40 blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-50 via-white to-white dark:from-brand-950/30 dark:via-slate-900 dark:to-slate-900 pointer-events-none" />
+        <div className="absolute -top-24 -right-24 h-60 w-60 rounded-full bg-gradient-to-br from-brand-200/60 to-brand-300/40 dark:from-brand-500/20 dark:to-brand-700/10 blur-3xl pointer-events-none" />
 
         <div className="relative p-6 md:p-8 flex flex-col md:flex-row items-center md:items-stretch gap-6">
           <div className="relative h-44 w-44 shrink-0">
@@ -35,7 +35,7 @@ export default function ScoreCard({ result }: { result: AnalysisResult }) {
                   <stop offset="100%" stopColor={tier.grad[1]} />
                 </linearGradient>
               </defs>
-              <circle cx="100" cy="100" r={radius} stroke="#eef2f7" strokeWidth="14" fill="transparent" />
+              <circle cx="100" cy="100" r={radius} className="stroke-slate-200 dark:stroke-slate-700" strokeWidth="14" fill="transparent" />
               <circle
                 cx="100"
                 cy="100"
@@ -59,7 +59,7 @@ export default function ScoreCard({ result }: { result: AnalysisResult }) {
 
           <div className="flex-1 min-w-0 flex flex-col justify-center">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-700 ${tier.text}`}>
+              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-slate-700 ${tier.text}`}>
                 <span className="h-1.5 w-1.5 rounded-full bg-current" />
                 {tier.label}
               </span>
