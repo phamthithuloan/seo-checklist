@@ -37,6 +37,22 @@ class OutlineHeading(CamelModel):
     note: str | None = None
 
 
+OutlineDepthVerdict = Literal["sketchy", "adequate", "detailed"]
+
+
+class OutlineAIAnalysis(CamelModel):
+    """LLM-based semantic comparison: does the article follow the outline's
+    intent (format, info coverage, depth)?"""
+
+    format_followed: bool
+    format_notes: str
+    info_coverage_score: int
+    missing_points: list[str]
+    extra_depth_points: list[str]
+    depth_verdict: OutlineDepthVerdict
+    depth_summary: str
+
+
 class OutlineComparison(CamelModel):
     total_outline_headings: int
     total_content_headings: int
@@ -44,6 +60,8 @@ class OutlineComparison(CamelModel):
     missing: int
     extra: int
     headings: list[OutlineHeading]
+    ai_analysis: OutlineAIAnalysis | None = None
+    ai_reason_unavailable: str | None = None
 
 
 class CheckIssue(CamelModel):

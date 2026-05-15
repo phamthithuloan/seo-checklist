@@ -15,7 +15,9 @@ from app.schemas.analysis import (
     AnalysisListItem,
     AnalysisOut,
 )
+from app.core.config import get_settings
 from app.services.ai_proofread import proofread_content
+from app.services.outline_ai_compare import analyze_outline_followthrough
 from app.services.outline_compare import compare_outline
 from app.services.report_export import render_analysis_html, render_analysis_markdown
 from app.services.seo_analyzer import analyze_content
@@ -74,7 +76,19 @@ async def create_analysis(
     outline_comparison_dict = None
     outline_text = data.outline.strip() if data.outline else None
     if outline_text:
-        outline_comparison_dict = compare_outline(outline_text, data.content).model_dump()
+        comparison = compare_outline(outline_text, data.content)
+        ai_analysis = await analyze_outline_followthrough(
+            outline=outline_text, content=data.content
+        )
+        comparison.ai_analysis = ai_analysis
+        if ai_analysis is None:
+            comparison.ai_reason_unavailable = (
+                "Backend chưa cấu hình ANTHROPIC_API_KEY — phân tích "
+                "follow-through outline cần Claude Sonnet 4.6."
+                if not get_settings().anthropic_api_key
+                else "AI không trả về kết quả (lỗi tạm thời, thử lại lần phân tích sau)."
+            )
+        outline_comparison_dict = comparison.model_dump()
 
     analysis = Analysis(
         user_id=user.id,

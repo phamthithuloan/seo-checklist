@@ -61,6 +61,18 @@ export interface OutlineHeading {
   note?: string | null;
 }
 
+export type OutlineDepthVerdict = "sketchy" | "adequate" | "detailed";
+
+export interface OutlineAIAnalysis {
+  formatFollowed: boolean;
+  formatNotes: string;
+  infoCoverageScore: number;
+  missingPoints: string[];
+  extraDepthPoints: string[];
+  depthVerdict: OutlineDepthVerdict;
+  depthSummary: string;
+}
+
 export interface OutlineComparison {
   totalOutlineHeadings: number;
   totalContentHeadings: number;
@@ -68,4 +80,6 @@ export interface OutlineComparison {
   missing: number;
   extra: number;
   headings: OutlineHeading[];
+  aiAnalysis?: OutlineAIAnalysis | null;
+  aiReasonUnavailable?: string | null;
 }
