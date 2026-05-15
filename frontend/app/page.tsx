@@ -195,7 +195,7 @@ export default function Page() {
                   Phân tích bài viết SEO
                 </h2>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Dán bài viết và nhập từ khóa chính. Hệ thống chấm điểm 39 tiêu chí, lưu lịch sử và cho phép xem lại.
+                  Dán bài viết và nhập từ khóa chính. Hệ thống có 39 tiêu chí (tự động, cấu hình, AI) — chỉ tính điểm các tiêu chí áp dụng cho bài.
                 </p>
               </div>
 
@@ -232,7 +232,7 @@ export default function Page() {
                       Checklist chi tiết
                     </h2>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
-                      {result.totalChecks} tiêu chí, nhóm theo 4 lĩnh vực — ưu tiên xử lý các mục Fail trước.
+                      {result.totalChecks}/{ALL_RULE_IDS.length} tiêu chí được áp dụng, nhóm theo 4 lĩnh vực — ưu tiên xử lý các mục Fail trước.
                     </p>
                   </div>
 

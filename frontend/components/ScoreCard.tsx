@@ -1,6 +1,7 @@
 "use client";
 
 import type { AnalysisResult } from "@/lib/types";
+import { ALL_RULE_IDS } from "@/lib/checklist-rules";
 
 function tierFor(score: number) {
   if (score >= 85) return { label: "Excellent", text: "text-emerald-600 dark:text-emerald-300", grad: ["#10b981", "#059669"] };
@@ -64,14 +65,17 @@ export default function ScoreCard({ result }: { result: AnalysisResult }) {
                 {tier.label}
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400">
-                {result.passCount}/{total} tiêu chí đạt
+                {result.passCount}/{total} tiêu chí áp dụng đạt
               </span>
             </div>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
               SEO Score Overview
             </h2>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 max-w-md">
-              Điểm tổng hợp từ {total} tiêu chí rule-based. Cải thiện các mục đỏ trước để tăng điểm nhanh nhất.
+              Điểm tính từ {total}/{ALL_RULE_IDS.length} tiêu chí áp dụng cho bài này
+              {ALL_RULE_IDS.length - total > 0
+                ? ` (${ALL_RULE_IDS.length - total} tiêu chí khác bị tắt hoặc thiếu input cấu hình).`
+                : "."} Cải thiện các mục đỏ trước để tăng điểm nhanh nhất.
             </p>
 
             <div className="mt-5 space-y-4">
