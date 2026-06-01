@@ -81,7 +81,9 @@ const SUB_ITEMS: SubItem[] = [
   { id: "cat-branding", label: "Branding" },
   { id: "cat-eeat", label: "E-E-A-T" },
   { id: "cat-grammar", label: "Ngữ pháp" },
+  { id: "cat-trust-ai", label: "Tin cậy & Kiểm chứng AI" },
   { id: "outline-comparison", label: "So sánh Outline" },
+  { id: "competitor-compare", label: "So sánh đối thủ" },
 ];
 
 const ALL_SUB_IDS = SUB_ITEMS.map((s) => s.id);
