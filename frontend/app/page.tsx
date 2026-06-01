@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Sidebar, { type ViewMode } from "@/components/Sidebar";
 import InputForm from "@/components/InputForm";
 import ScoreCard from "@/components/ScoreCard";
-import CategorySection, { CATEGORIES } from "@/components/CategorySection";
+import CategorySection, { CATEGORIES, type StatusFilter } from "@/components/CategorySection";
+import PriorityFixes from "@/components/PriorityFixes";
 import HistoryList from "@/components/HistoryList";
 import ChecklistSettings from "@/components/ChecklistSettings";
 import OutlineInput from "@/components/OutlineInput";
@@ -45,6 +46,7 @@ export default function Page() {
   /* Result / flow */
   const [result, setResult] = useState<AnalysisOut | null>(null);
   const [resultVersion, setResultVersion] = useState(0);
+  const [reviewFilter, setReviewFilter] = useState<StatusFilter>("all");
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [historyVersion, setHistoryVersion] = useState(0);
@@ -241,13 +243,37 @@ export default function Page() {
                     <ScoreCard result={result} />
                   </div>
 
-                  <div className="space-y-1">
-                    <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-                      Checklist chi tiết
-                    </h2>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                      {result.totalChecks}/{ALL_RULE_IDS.length} tiêu chí được áp dụng, nhóm theo 4 lĩnh vực — ưu tiên xử lý các mục Fail trước.
-                    </p>
+                  <PriorityFixes checks={result.checks} />
+
+                  <div className="flex items-end justify-between gap-3 flex-wrap">
+                    <div className="space-y-1">
+                      <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                        Checklist chi tiết
+                      </h2>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                        {result.totalChecks}/{ALL_RULE_IDS.length} tiêu chí được chấm điểm — các mục chưa chạy hiện riêng, không tính điểm.
+                      </p>
+                    </div>
+                    <div className="inline-flex rounded-xl ring-1 ring-slate-200 dark:ring-slate-700 p-0.5 bg-white dark:bg-slate-900 text-xs font-medium">
+                      {([
+                        ["all", "Tất cả"],
+                        ["todo", "Cần sửa"],
+                        ["fail", "Chỉ Fail"],
+                      ] as const).map(([val, lbl]) => (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => setReviewFilter(val)}
+                          className={`px-3 py-1.5 rounded-lg transition ${
+                            reviewFilter === val
+                              ? "bg-brand-500 text-white shadow-sm"
+                              : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                          }`}
+                        >
+                          {lbl}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="space-y-5">
@@ -264,6 +290,7 @@ export default function Page() {
                             (c) => c.category === cat.id,
                           )}
                           disabledRuleIds={disabled}
+                          statusFilter={reviewFilter}
                         />
                       ));
                     })()}

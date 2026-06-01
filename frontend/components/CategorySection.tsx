@@ -161,14 +161,18 @@ type Row =
 
 const ROW_ORDER = { scored: 0, "needs-config": 1, "needs-api": 2, "not-run": 3, disabled: 4 };
 
+export type StatusFilter = "all" | "todo" | "fail";
+
 export default function CategorySection({
   meta,
   checks,
   disabledRuleIds,
+  statusFilter = "all",
 }: {
   meta: CategoryMeta;
   checks: CheckResult[];
   disabledRuleIds?: Set<string>;
+  statusFilter?: StatusFilter;
 }) {
   const rules = ALL_RULES.filter((r) => r.category === meta.id);
   const disabled = disabledRuleIds ?? new Set<string>();
@@ -182,7 +186,18 @@ export default function CategorySection({
     if (disabled.has(rule.id)) return { kind: "disabled", rule };
     return { kind: "not-run", rule };
   });
-  const ordered = [...rows].sort((a, b) => ROW_ORDER[a.kind] - ROW_ORDER[b.kind]);
+  let ordered = [...rows].sort((a, b) => ROW_ORDER[a.kind] - ROW_ORDER[b.kind]);
+
+  // Focus filter: keep only scored rows matching the requested status.
+  if (statusFilter !== "all") {
+    ordered = ordered.filter(
+      (r) =>
+        r.kind === "scored" &&
+        (statusFilter === "fail"
+          ? r.check.status === "fail"
+          : r.check.status === "fail" || r.check.status === "warn"),
+    );
+  }
 
   // Score = only checks that actually ran (inactive excluded).
   const scored = checks.filter((c) => !c.inactive);
@@ -197,6 +212,9 @@ export default function CategorySection({
   const tone = statusColor(scoredTotal ? passPct : 0);
   const inactiveCount = rows.length - scoredTotal;
   const Icon = meta.Icon;
+
+  // When focus-filtering, hide categories that have nothing matching.
+  if (statusFilter !== "all" && ordered.length === 0) return null;
 
   return (
     <section id={`cat-${meta.id}`} className="scroll-mt-24 rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70 animate-fade-up">
