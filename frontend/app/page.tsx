@@ -7,6 +7,7 @@ import InputForm from "@/components/InputForm";
 import ScoreCard from "@/components/ScoreCard";
 import CategorySection, { CATEGORIES, type StatusFilter } from "@/components/CategorySection";
 import PriorityFixes from "@/components/PriorityFixes";
+import ArticleHighlight from "@/components/ArticleHighlight";
 import HistoryList from "@/components/HistoryList";
 import ChecklistSettings from "@/components/ChecklistSettings";
 import OutlineInput from "@/components/OutlineInput";
@@ -244,6 +245,8 @@ export default function Page() {
                   </div>
 
                   <PriorityFixes checks={result.checks} />
+
+                  <ArticleHighlight content={result.content} checks={result.checks} />
 
                   <div className="flex items-end justify-between gap-3 flex-wrap">
                     <div className="space-y-1">
