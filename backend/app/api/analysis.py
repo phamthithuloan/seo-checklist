@@ -1,4 +1,3 @@
-import math
 import re
 from uuid import UUID
 
@@ -14,6 +13,7 @@ from app.schemas.analysis import (
     AnalysisCreate,
     AnalysisListItem,
     AnalysisOut,
+    CheckResult,
 )
 from app.core.config import get_settings
 from app.services.ai_content_audit import audit_ai_content
@@ -21,7 +21,20 @@ from app.services.ai_proofread import proofread_content
 from app.services.outline_ai_compare import analyze_outline_followthrough
 from app.services.outline_compare import compare_outline
 from app.services.report_export import render_analysis_html, render_analysis_markdown
-from app.services.seo_analyzer import analyze_content
+from app.services.seo_analyzer import analyze_content, score_checks
+
+
+def _needs_api(id_: str, label: str, category: str) -> CheckResult:
+    """Placeholder shown when an AI feature was requested but GEMINI_API_KEY is
+    unset — visible in the checklist but excluded from the score."""
+    return CheckResult(
+        id=id_,
+        label=label,
+        category=category,  # type: ignore[arg-type]
+        status="warn",
+        inactive="needs-api",
+        detail="Cần GEMINI_API_KEY ở backend để chạy tính năng AI này.",
+    )
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
@@ -52,37 +65,42 @@ async def create_analysis(
         config=data.config,
     )
 
-    # Optional AI add-ons — opt-in, cost API tokens. Both append checks; we
-    # re-aggregate score/counts once after whichever ran.
+    # Optional AI add-ons — opt-in. Append their checks; when a feature is
+    # requested but GEMINI_API_KEY is missing, append an "inactive" placeholder
+    # so the checklist shows it (greyed, not scored) instead of hiding it.
+    gemini_on = bool(get_settings().gemini_api_key)
     extra_added = False
 
     if data.ai_proofread:
         proofread = await proofread_content(data.content)
         if proofread is not None:
-            grammar_check, spelling_check = proofread
-            result.checks.extend([grammar_check, spelling_check])
-            extra_added = True
+            result.checks.extend(proofread)
+        elif not gemini_on:
+            result.checks.append(
+                _needs_api("grammar", "Ngữ pháp đúng, diễn đạt mạch lạc", "grammar")
+            )
+            result.checks.append(
+                _needs_api("spelling", "Không có lỗi chính tả", "grammar")
+            )
+        extra_added = True
 
     if data.ai_content_audit:
         audit_checks = await audit_ai_content(data.content)
         if audit_checks:
             result.checks.extend(audit_checks)
-            extra_added = True
+        if not gemini_on and not any(c.id == "fact-check" for c in result.checks):
+            result.checks.append(
+                _needs_api("fact-check", "Không có thông tin sai / bịa", "trust-ai")
+            )
+        extra_added = True
 
     if extra_added:
-        result.total_checks = len(result.checks)
-        result.pass_count = sum(1 for c in result.checks if c.status == "pass")
-        result.fail_count = sum(1 for c in result.checks if c.status == "fail")
-        result.warn_count = sum(1 for c in result.checks if c.status == "warn")
-        result.score = (
-            math.floor(
-                ((result.pass_count + result.warn_count * 0.5) / result.total_checks)
-                * 100
-                + 0.5
-            )
-            if result.total_checks > 0
-            else 0
-        )
+        agg = score_checks(result.checks)
+        result.total_checks = agg["total"]
+        result.pass_count = agg["pass"]
+        result.fail_count = agg["fail"]
+        result.warn_count = agg["warn"]
+        result.score = agg["score"]
 
     # Optional outline comparison
     outline_comparison_dict = None

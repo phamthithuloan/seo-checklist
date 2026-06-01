@@ -83,10 +83,16 @@ def test_perfect_article_passes_all_auto_rules():
             "Liên hệ nhận tư vấn miễn phí."
         ),
     )
-    assert r.total_checks == 37
+    # Fixture has no config input → configurable rules are 'needs-config' inactive
+    # (shown but NOT scored). They stay in `checks` but are excluded from totals.
+    assert len(r.checks) == 37
+    inactive = [c for c in r.checks if c.inactive is not None]
+    assert all(c.inactive == "needs-config" for c in inactive), inactive
+    assert r.total_checks == len(r.checks) - len(inactive)
+    assert r.total_checks == 28  # 37 - 9 config rules awaiting input
     assert r.word_count >= 800
-    # All FAILs must be 0 — configurable rules emit warn (not fail) when unconfigured
-    assert r.fail_count == 0, [c.id for c in r.checks if c.status == "fail"]
+    # All FAILs must be 0 among scored rules
+    assert r.fail_count == 0, [c.id for c in r.checks if c.status == "fail" and c.inactive is None]
 
     # Identify base auto rules (everything not configurable, not heuristic eeat/cta-3s/conclusion-not-cta)
     HEURISTIC_RULE_IDS = {

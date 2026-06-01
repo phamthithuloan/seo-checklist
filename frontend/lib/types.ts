@@ -26,6 +26,8 @@ export interface CheckIssue {
   note?: string;
 }
 
+export type InactiveReason = "needs-config" | "needs-api";
+
 export interface CheckResult {
   id: string;
   label: string;
@@ -35,6 +37,9 @@ export interface CheckResult {
   recommendation?: string;
   example?: string;
   issues?: CheckIssue[];
+  /** Set when the rule didn't actually evaluate (no config input / no API key).
+   *  Shown separately and excluded from the score. */
+  inactive?: InactiveReason | null;
 }
 
 export interface AnalysisResult {

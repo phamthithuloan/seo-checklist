@@ -1,7 +1,7 @@
 "use client";
 
 import type { CategoryId, CheckResult } from "@/lib/types";
-import { ALL_RULES } from "@/lib/checklist-rules";
+import { ALL_RULES, type RuleMeta } from "@/lib/checklist-rules";
 import ChecklistItem, { SkippedRuleItem } from "./ChecklistItem";
 
 type IconProps = { className?: string };
@@ -152,6 +152,15 @@ function statusColor(passPct: number) {
   return { ring: "ring-rose-200", text: "text-rose-700", bg: "bg-rose-50", bar: "bg-rose-500", label: "Yếu" };
 }
 
+type Row =
+  | { kind: "scored"; rule: RuleMeta; check: CheckResult }
+  | { kind: "needs-config"; rule: RuleMeta; check: CheckResult }
+  | { kind: "needs-api"; rule: RuleMeta; check: CheckResult }
+  | { kind: "disabled"; rule: RuleMeta }
+  | { kind: "not-run"; rule: RuleMeta };
+
+const ROW_ORDER = { scored: 0, "needs-config": 1, "needs-api": 2, "not-run": 3, disabled: 4 };
+
 export default function CategorySection({
   meta,
   checks,
@@ -161,34 +170,37 @@ export default function CategorySection({
   checks: CheckResult[];
   disabledRuleIds?: Set<string>;
 }) {
-  const ruleMetasInCategory = ALL_RULES.filter((r) => r.category === meta.id);
+  const rules = ALL_RULES.filter((r) => r.category === meta.id);
   const disabled = disabledRuleIds ?? new Set<string>();
-  const checkIds = new Set(checks.map((c) => c.id));
-  const skippedRules = ruleMetasInCategory.filter(
-    (r) => !checkIds.has(r.id) && disabled.has(r.id),
-  );
+  const byId = new Map(checks.map((c) => [c.id, c]));
 
-  const isGrammarInactive =
-    meta.id === "grammar" && checks.length === 0;
+  const rows: Row[] = rules.map((rule) => {
+    const c = byId.get(rule.id);
+    if (c && c.inactive === "needs-config") return { kind: "needs-config", rule, check: c };
+    if (c && c.inactive === "needs-api") return { kind: "needs-api", rule, check: c };
+    if (c) return { kind: "scored", rule, check: c };
+    if (disabled.has(rule.id)) return { kind: "disabled", rule };
+    return { kind: "not-run", rule };
+  });
+  const ordered = [...rows].sort((a, b) => ROW_ORDER[a.kind] - ROW_ORDER[b.kind]);
 
-  // Hide non-grammar sections that have nothing to show.
-  if (checks.length === 0 && skippedRules.length === 0 && !isGrammarInactive) {
-    return null;
-  }
-
-  const total = Math.max(checks.length, 1);
-  const pass = checks.filter((c) => c.status === "pass").length;
-  const warn = checks.filter((c) => c.status === "warn").length;
-  const fail = checks.filter((c) => c.status === "fail").length;
-  const passPct = (pass / total) * 100;
-  const warnPct = (warn / total) * 100;
-  const failPct = (fail / total) * 100;
-  const tone = statusColor(passPct);
+  // Score = only checks that actually ran (inactive excluded).
+  const scored = checks.filter((c) => !c.inactive);
+  const pass = scored.filter((c) => c.status === "pass").length;
+  const warn = scored.filter((c) => c.status === "warn").length;
+  const fail = scored.filter((c) => c.status === "fail").length;
+  const scoredTotal = scored.length;
+  const denom = Math.max(scoredTotal, 1);
+  const passPct = (pass / denom) * 100;
+  const warnPct = (warn / denom) * 100;
+  const failPct = (fail / denom) * 100;
+  const tone = statusColor(scoredTotal ? passPct : 0);
+  const inactiveCount = rows.length - scoredTotal;
   const Icon = meta.Icon;
 
   return (
     <section id={`cat-${meta.id}`} className="scroll-mt-24 rounded-2xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200/70 dark:ring-slate-700/70 animate-fade-up">
-      <header className="px-5 md:px-6 pt-5 pb-4 border-b border-slate-100">
+      <header className="px-5 md:px-6 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3 min-w-0">
             <div className={`h-11 w-11 rounded-xl ${meta.iconBg} ${meta.iconText} grid place-items-center ring-1 ${meta.ringTint}`}>
@@ -203,69 +215,121 @@ export default function CategorySection({
           </div>
 
           <div className="flex items-center gap-3">
-            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full ring-1 ${tone.bg} ${tone.text} ${tone.ring}`}>
-              <span className="h-1.5 w-1.5 rounded-full bg-current" />
-              {tone.label}
-            </span>
+            {scoredTotal > 0 ? (
+              <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full ring-1 ${tone.bg} ${tone.text} ${tone.ring}`}>
+                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                {tone.label}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full ring-1 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 ring-slate-200 dark:ring-slate-700">
+                Chưa chấm
+              </span>
+            )}
             <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 num">
-              {pass}/{total}
+              {pass}/{scoredTotal}
             </span>
           </div>
         </div>
 
-        <div className="mt-4">
-          <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
-            {passPct > 0 && <div className="bg-emerald-500" style={{ width: `${passPct}%` }} />}
-            {warnPct > 0 && <div className="bg-amber-400" style={{ width: `${warnPct}%` }} />}
-            {failPct > 0 && <div className="bg-rose-500" style={{ width: `${failPct}%` }} />}
+        {scoredTotal > 0 && (
+          <div className="mt-4">
+            <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+              {passPct > 0 && <div className="bg-emerald-500" style={{ width: `${passPct}%` }} />}
+              {warnPct > 0 && <div className="bg-amber-400" style={{ width: `${warnPct}%` }} />}
+              {failPct > 0 && <div className="bg-rose-500" style={{ width: `${failPct}%` }} />}
+            </div>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-600 dark:text-slate-400">
+              <Pill dot="bg-emerald-500" label="Pass" value={pass} />
+              <Pill dot="bg-amber-400" label="Warn" value={warn} />
+              <Pill dot="bg-rose-500" label="Fail" value={fail} />
+              {inactiveCount > 0 && <Pill dot="bg-slate-300 dark:bg-slate-600" label="Chưa chấm" value={inactiveCount} />}
+            </div>
           </div>
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-600 dark:text-slate-400">
-            <Pill dot="bg-emerald-500" label="Pass" value={pass} />
-            <Pill dot="bg-amber-400" label="Warn" value={warn} />
-            <Pill dot="bg-rose-500" label="Fail" value={fail} />
-          </div>
-        </div>
+        )}
+        {scoredTotal === 0 && inactiveCount > 0 && (
+          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+            {inactiveCount} tiêu chí chưa được chấm — xem trạng thái từng mục bên dưới.
+          </p>
+        )}
       </header>
 
       <ul className="p-4 md:p-5 space-y-3">
-        {isGrammarInactive && (
-          <li className="rounded-2xl bg-amber-50 dark:bg-amber-900/20 ring-1 ring-amber-200 dark:ring-amber-800 p-5">
-            <p className="text-sm font-semibold text-amber-800 dark:text-amber-200 mb-2">
-              ⚠ AI proofread không chạy cho bài này
-            </p>
-            <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
-              Tính năng kiểm tra ngữ pháp & chính tả bằng Google Gemini hiện
-              không trả về kết quả. Các nguyên nhân có thể:
-            </p>
-            <ul className="mt-2 text-xs text-amber-700 dark:text-amber-300 space-y-1 list-disc list-inside">
-              <li>
-                Bạn chưa tick checkbox <strong>"AI proofread ngữ pháp + chính tả"</strong>{" "}
-                trong form nhập bài.
-              </li>
-              <li>
-                Backend chưa cấu hình <code>GEMINI_API_KEY</code> — admin
-                cần set biến môi trường này trên Railway.
-              </li>
-              <li>
-                Bài không có lỗi ngữ pháp/chính tả nào được phát hiện (hiếm).
-              </li>
-            </ul>
-          </li>
-        )}
-        {checks.map((c) => (
-          <ChecklistItem key={c.id} check={c} />
-        ))}
-        {skippedRules.map((r) => (
-          <SkippedRuleItem
-            key={r.id}
-            label={r.label}
-            threshold={r.threshold}
-            description={r.description}
-            reason="Bạn đã tắt tiêu chí này trong Checklist SEO → không tính vào điểm."
-          />
-        ))}
+        {ordered.map((row) => {
+          if (row.kind === "scored") return <ChecklistItem key={row.rule.id} check={row.check} />;
+          if (row.kind === "disabled")
+            return (
+              <SkippedRuleItem
+                key={row.rule.id}
+                label={row.rule.label}
+                threshold={row.rule.threshold}
+                description={row.rule.description}
+                reason="Bạn đã tắt tiêu chí này trong Checklist SEO → không tính vào điểm."
+              />
+            );
+          const check = row.kind === "not-run" ? undefined : row.check;
+          return <InactiveItem key={row.rule.id} kind={row.kind} rule={row.rule} check={check} />;
+        })}
       </ul>
     </section>
+  );
+}
+
+const INACTIVE_STYLE = {
+  "needs-config": {
+    pill: "Chưa có thông tin",
+    pillCls:
+      "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 ring-amber-200 dark:ring-amber-700",
+    bar: "bg-amber-300 dark:bg-amber-600",
+    fallback: "Cần nhập thông tin cấu hình trong Checklist SEO để chấm.",
+  },
+  "needs-api": {
+    pill: "Chưa có API",
+    pillCls:
+      "bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 ring-violet-200 dark:ring-violet-700",
+    bar: "bg-violet-300 dark:bg-violet-600",
+    fallback: "Cần GEMINI_API_KEY ở backend để chạy tính năng AI này.",
+  },
+  "not-run": {
+    pill: "Chưa bật",
+    pillCls:
+      "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 ring-slate-200 dark:ring-slate-600",
+    bar: "bg-slate-300 dark:bg-slate-600",
+    fallback: "",
+  },
+} as const;
+
+function InactiveItem({
+  kind,
+  rule,
+  check,
+}: {
+  kind: "needs-config" | "needs-api" | "not-run";
+  rule: RuleMeta;
+  check?: CheckResult;
+}) {
+  const st = INACTIVE_STYLE[kind];
+  const isAi = rule.category === "grammar" || rule.category === "trust-ai";
+  const reason =
+    check?.detail ||
+    (kind === "not-run"
+      ? isAi
+        ? "Chưa bật — tick ô AI ở form nhập bài để dùng tính năng này."
+        : "Không áp dụng cho bài này."
+      : st.fallback);
+  return (
+    <li className="relative overflow-hidden rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 ring-1 ring-slate-200/60 dark:ring-slate-700/60">
+      <span className={`absolute left-0 top-0 bottom-0 w-1 ${st.bar}`} />
+      <div className="p-4 pl-5">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <p className="font-medium text-slate-700 dark:text-slate-300 leading-tight">{rule.label}</p>
+          <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 ${st.pillCls}`}>
+            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+            {st.pill}
+          </span>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{reason}</p>
+      </div>
+    </li>
   );
 }
 

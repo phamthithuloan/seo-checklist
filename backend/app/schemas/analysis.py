@@ -73,6 +73,9 @@ class CheckIssue(CamelModel):
     note: str | None = None
 
 
+InactiveReason = Literal["needs-config", "needs-api"]
+
+
 class CheckResult(CamelModel):
     id: str
     label: str
@@ -82,6 +85,9 @@ class CheckResult(CamelModel):
     recommendation: str | None = None
     example: str | None = None
     issues: list[CheckIssue] = []
+    # When set, the rule did not actually evaluate (no config input / no API key)
+    # → it is shown separately and EXCLUDED from the score.
+    inactive: InactiveReason | None = None
 
 
 class AnalysisConfig(CamelModel):

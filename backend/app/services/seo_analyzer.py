@@ -74,6 +74,28 @@ _INTERNAL_LINK_PATTERNS = [
 ]
 
 
+def score_checks(checks: list[CheckResult]) -> dict[str, int]:
+    """Aggregate pass/warn/fail + 0-100 score over checks that ACTUALLY ran.
+    Inactive checks (needs-config / needs-api) are excluded from the score."""
+    scored = [c for c in checks if c.inactive is None]
+    pass_count = sum(1 for c in scored if c.status == "pass")
+    fail_count = sum(1 for c in scored if c.status == "fail")
+    warn_count = sum(1 for c in scored if c.status == "warn")
+    total = len(scored)
+    score = (
+        math.floor(((pass_count + warn_count * 0.5) / total) * 100 + 0.5)
+        if total > 0
+        else 0
+    )
+    return {
+        "score": score,
+        "total": total,
+        "pass": pass_count,
+        "warn": warn_count,
+        "fail": fail_count,
+    }
+
+
 def _normalize(text: str) -> str:
     return text.lower().strip()
 
@@ -794,6 +816,7 @@ def analyze_content(
             label=label,
             category=category,
             status="warn",
+            inactive="needs-config",  # not scored — shown as "chưa cung cấp thông tin"
             detail=f"Chưa cấu hình {what} trong Checklist SEO.",
             recommendation=(
                 f"Mở Checklist SEO → tìm rule này → nhập {what} → bấm Lưu để tool kiểm tra."
@@ -1287,22 +1310,14 @@ def analyze_content(
             recommendation="Thêm heading Kết luận / Tổng kết tách riêng phần CTA.",
         ))
 
-    pass_count = sum(1 for c in checks if c.status == "pass")
-    fail_count = sum(1 for c in checks if c.status == "fail")
-    warn_count = sum(1 for c in checks if c.status == "warn")
-    total = len(checks)
-    score = (
-        math.floor(((pass_count + warn_count * 0.5) / total) * 100 + 0.5)
-        if total > 0
-        else 0
-    )
+    agg = score_checks(checks)
 
     return AnalysisResult(
-        score=score,
-        total_checks=len(checks),
-        pass_count=pass_count,
-        fail_count=fail_count,
-        warn_count=warn_count,
+        score=agg["score"],
+        total_checks=agg["total"],
+        pass_count=agg["pass"],
+        fail_count=agg["fail"],
+        warn_count=agg["warn"],
         word_count=word_count,
         keyword_density=density,
         checks=checks,
