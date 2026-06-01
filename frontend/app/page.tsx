@@ -8,6 +8,7 @@ import ScoreCard from "@/components/ScoreCard";
 import CategorySection, { CATEGORIES, type StatusFilter } from "@/components/CategorySection";
 import PriorityFixes from "@/components/PriorityFixes";
 import ArticleHighlight from "@/components/ArticleHighlight";
+import CompetitorCompare from "@/components/CompetitorCompare";
 import HistoryList from "@/components/HistoryList";
 import ChecklistSettings from "@/components/ChecklistSettings";
 import OutlineInput from "@/components/OutlineInput";
@@ -306,6 +307,8 @@ export default function Page() {
                       />
                     </div>
                   )}
+
+                  <CompetitorCompare keyword={result.keyword} content={result.content} />
                 </>
               ) : (
                 <EmptyState />

@@ -111,6 +111,29 @@ export interface GoogleDocsOut {
   text: string;
 }
 
+export interface CompetitorMetrics {
+  wordCount: number;
+  h2Count: number;
+  h3Count: number;
+  bulletCount: number;
+  imageCount: number;
+  linkCount: number;
+  hasFaq: boolean;
+  keywordDensity: number;
+}
+
+export interface CompetitorEntry {
+  url: string;
+  title?: string | null;
+  error?: string | null;
+  metrics?: CompetitorMetrics | null;
+}
+
+export interface CompareResult {
+  yours: CompetitorMetrics;
+  competitors: CompetitorEntry[];
+}
+
 /* ───────── Token helpers ───────── */
 
 export const tokenStore = {
@@ -246,6 +269,9 @@ export const api = {
     },
     delete(id: string) {
       return request<void>(`/analysis/${id}`, { method: "DELETE" });
+    },
+    compare(data: { keyword: string; content: string; competitorUrls: string[] }) {
+      return request<CompareResult>("/analysis/compare", { method: "POST", body: data });
     },
     /** Build a URL the browser can download directly. Auth handled in download helper. */
     exportUrl(id: string, format: "markdown" | "html" = "markdown") {

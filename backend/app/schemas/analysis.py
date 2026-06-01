@@ -120,6 +120,35 @@ class AnalysisResult(CamelModel):
     checks: list[CheckResult]
 
 
+class CompetitorMetrics(CamelModel):
+    word_count: int
+    h2_count: int
+    h3_count: int
+    bullet_count: int
+    image_count: int
+    link_count: int
+    has_faq: bool
+    keyword_density: float
+
+
+class CompetitorEntry(CamelModel):
+    url: str
+    title: str | None = None
+    error: str | None = None
+    metrics: CompetitorMetrics | None = None
+
+
+class CompareRequest(CamelModel):
+    keyword: str = Field(min_length=1, max_length=255)
+    content: str = Field(min_length=1)
+    competitor_urls: list[str] = Field(min_length=1, max_length=3)
+
+
+class CompareResult(CamelModel):
+    yours: CompetitorMetrics
+    competitors: list[CompetitorEntry]
+
+
 class AnalysisCreate(CamelModel):
     """Request body for POST /analysis."""
 

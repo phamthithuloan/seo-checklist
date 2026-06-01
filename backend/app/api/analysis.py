@@ -14,12 +14,15 @@ from app.schemas.analysis import (
     AnalysisListItem,
     AnalysisOut,
     CheckResult,
+    CompareRequest,
+    CompareResult,
 )
 from app.core.config import get_settings
 from app.services.ai_content_audit import audit_ai_content
 from app.services.ai_proofread import proofread_content
 from app.services.outline_ai_compare import analyze_outline_followthrough
 from app.services.outline_compare import compare_outline
+from app.services.competitor_compare import compare_with_competitors
 from app.services.report_export import render_analysis_html, render_analysis_markdown
 from app.services.seo_analyzer import analyze_content, score_checks
 
@@ -151,6 +154,19 @@ async def create_analysis(
     await db.commit()
     await db.refresh(analysis)
     return analysis
+
+
+@router.post("/compare", response_model=CompareResult)
+async def compare_competitors(
+    data: CompareRequest,
+    user: User = Depends(get_current_user),
+) -> CompareResult:
+    """Compare the article against competitor URLs on structural SEO metrics."""
+    return await compare_with_competitors(
+        content=data.content,
+        keyword=data.keyword,
+        competitor_urls=data.competitor_urls,
+    )
 
 
 @router.get("", response_model=list[AnalysisListItem])
