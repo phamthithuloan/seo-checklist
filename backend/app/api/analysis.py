@@ -24,16 +24,23 @@ from app.services.report_export import render_analysis_html, render_analysis_mar
 from app.services.seo_analyzer import analyze_content, score_checks
 
 
-def _needs_api(id_: str, label: str, category: str) -> CheckResult:
-    """Placeholder shown when an AI feature was requested but GEMINI_API_KEY is
-    unset — visible in the checklist but excluded from the score."""
+def _inactive_ai(id_: str, label: str, category: str, has_key: bool) -> CheckResult:
+    """Placeholder for an AI feature that was requested but produced no result —
+    visible in the checklist (greyed) but excluded from the score. Distinguishes
+    'no API key' from 'temporary error/limit' so the message is accurate."""
+    if has_key:
+        reason = "error"
+        detail = "Tạm thời không chạy được (Gemini quá tải / giới hạn) — thử lại sau."
+    else:
+        reason = "needs-api"
+        detail = "Cần GEMINI_API_KEY ở backend để chạy tính năng AI này."
     return CheckResult(
         id=id_,
         label=label,
         category=category,  # type: ignore[arg-type]
         status="warn",
-        inactive="needs-api",
-        detail="Cần GEMINI_API_KEY ở backend để chạy tính năng AI này.",
+        inactive=reason,  # type: ignore[arg-type]
+        detail=detail,
     )
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
@@ -75,12 +82,13 @@ async def create_analysis(
         proofread = await proofread_content(data.content)
         if proofread is not None:
             result.checks.extend(proofread)
-        elif not gemini_on:
+        else:
+            # No result: either no key (needs-api) or a transient failure (error).
             result.checks.append(
-                _needs_api("grammar", "Ngữ pháp đúng, diễn đạt mạch lạc", "grammar")
+                _inactive_ai("grammar", "Ngữ pháp đúng, diễn đạt mạch lạc", "grammar", gemini_on)
             )
             result.checks.append(
-                _needs_api("spelling", "Không có lỗi chính tả", "grammar")
+                _inactive_ai("spelling", "Không có lỗi chính tả", "grammar", gemini_on)
             )
         extra_added = True
 
@@ -88,9 +96,9 @@ async def create_analysis(
         audit_checks = await audit_ai_content(data.content)
         if audit_checks:
             result.checks.extend(audit_checks)
-        if not gemini_on and not any(c.id == "fact-check" for c in result.checks):
+        if not any(c.id == "fact-check" for c in result.checks):
             result.checks.append(
-                _needs_api("fact-check", "Không có thông tin sai / bịa", "trust-ai")
+                _inactive_ai("fact-check", "Không có thông tin sai / bịa", "trust-ai", gemini_on)
             )
         extra_added = True
 

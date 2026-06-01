@@ -26,7 +26,7 @@ export interface CheckIssue {
   note?: string;
 }
 
-export type InactiveReason = "needs-config" | "needs-api";
+export type InactiveReason = "needs-config" | "needs-api" | "error";
 
 export interface CheckResult {
   id: string;

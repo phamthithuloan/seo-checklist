@@ -156,10 +156,11 @@ type Row =
   | { kind: "scored"; rule: RuleMeta; check: CheckResult }
   | { kind: "needs-config"; rule: RuleMeta; check: CheckResult }
   | { kind: "needs-api"; rule: RuleMeta; check: CheckResult }
+  | { kind: "error"; rule: RuleMeta; check: CheckResult }
   | { kind: "disabled"; rule: RuleMeta }
   | { kind: "not-run"; rule: RuleMeta };
 
-const ROW_ORDER = { scored: 0, "needs-config": 1, "needs-api": 2, "not-run": 3, disabled: 4 };
+const ROW_ORDER = { scored: 0, "needs-config": 1, "needs-api": 2, error: 3, "not-run": 4, disabled: 5 };
 
 export type StatusFilter = "all" | "todo" | "fail";
 
@@ -180,8 +181,7 @@ export default function CategorySection({
 
   const rows: Row[] = rules.map((rule) => {
     const c = byId.get(rule.id);
-    if (c && c.inactive === "needs-config") return { kind: "needs-config", rule, check: c };
-    if (c && c.inactive === "needs-api") return { kind: "needs-api", rule, check: c };
+    if (c && c.inactive) return { kind: c.inactive, rule, check: c };
     if (c) return { kind: "scored", rule, check: c };
     if (disabled.has(rule.id)) return { kind: "disabled", rule };
     return { kind: "not-run", rule };
@@ -307,6 +307,13 @@ const INACTIVE_STYLE = {
     bar: "bg-violet-300 dark:bg-violet-600",
     fallback: "Cần GEMINI_API_KEY ở backend để chạy tính năng AI này.",
   },
+  error: {
+    pill: "Tạm thời lỗi",
+    pillCls:
+      "bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 ring-rose-200 dark:ring-rose-700",
+    bar: "bg-rose-300 dark:bg-rose-600",
+    fallback: "Tạm thời không chạy được (Gemini quá tải / giới hạn) — thử lại sau.",
+  },
   "not-run": {
     pill: "Chưa bật",
     pillCls:
@@ -321,7 +328,7 @@ function InactiveItem({
   rule,
   check,
 }: {
-  kind: "needs-config" | "needs-api" | "not-run";
+  kind: "needs-config" | "needs-api" | "error" | "not-run";
   rule: RuleMeta;
   check?: CheckResult;
 }) {

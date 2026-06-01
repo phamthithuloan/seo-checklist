@@ -73,7 +73,7 @@ class CheckIssue(CamelModel):
     note: str | None = None
 
 
-InactiveReason = Literal["needs-config", "needs-api"]
+InactiveReason = Literal["needs-config", "needs-api", "error"]
 
 
 class CheckResult(CamelModel):
