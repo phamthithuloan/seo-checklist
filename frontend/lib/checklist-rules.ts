@@ -304,7 +304,7 @@ export const ALL_RULES: RuleMeta[] = [
     label: "Ngữ pháp đúng, diễn đạt mạch lạc",
     category: "grammar",
     description:
-      "AI proofread (Claude Sonnet 4.6) — phát hiện lỗi cú pháp, câu cụt, chủ-vị sai.",
+      "AI proofread (Google Gemini) — phát hiện lỗi cú pháp, câu cụt, chủ-vị sai.",
     kind: "auto",
   },
   {
@@ -312,8 +312,42 @@ export const ALL_RULES: RuleMeta[] = [
     label: "Không có lỗi chính tả",
     category: "grammar",
     description:
-      "AI proofread (Claude Sonnet 4.6) — phát hiện từ viết sai chính tả + đề xuất sửa.",
+      "AI proofread (Google Gemini) — phát hiện từ viết sai chính tả + đề xuất sửa.",
     kind: "auto",
+  },
+
+  // ── Tin cậy & Kiểm chứng AI (AI + web search, opt-in) ─────────
+  {
+    id: "claim-sourcing",
+    label: "Khẳng định có dẫn nguồn",
+    category: "trust-ai",
+    description:
+      "Heuristic (local, free): quét số liệu/khẳng định mạnh thiếu nguồn dẫn kèm.",
+    kind: "heuristic",
+  },
+  {
+    id: "source-verification",
+    label: "Nguồn dẫn kiểm chứng được",
+    category: "trust-ai",
+    description:
+      "Heuristic (local, free): fetch link nguồn ngoài — kiểm tra còn sống / chết.",
+    kind: "heuristic",
+  },
+  {
+    id: "fact-check",
+    label: "Không có thông tin sai / bịa",
+    category: "trust-ai",
+    description:
+      "Google Gemini (free tier) + Google Search xác minh số liệu/sự kiện nổi bật.",
+    kind: "auto",
+  },
+  {
+    id: "ai-tone",
+    label: "Văn phong tự nhiên (không máy móc)",
+    category: "trust-ai",
+    description:
+      "Heuristic (local, free): bắt cụm sáo rỗng / khuôn mẫu đặc trưng văn AI.",
+    kind: "heuristic",
   },
 
   // ── E-E-A-T (heuristic + config) ──────────────────────────────

@@ -66,6 +66,12 @@ const CATEGORY_META: Record<
     iconText: "text-slate-700",
     ringTint: "ring-slate-200",
   },
+  "trust-ai": {
+    label: "Tin cậy & Kiểm chứng AI",
+    iconBg: "bg-rose-50",
+    iconText: "text-rose-600",
+    ringTint: "ring-rose-100",
+  },
   cta: {
     label: "CTA",
     iconBg: "bg-rose-50",
@@ -82,6 +88,7 @@ const CATEGORY_ORDER: CategoryId[] = [
   "branding",
   "eeat",
   "grammar",
+  "trust-ai",
 ];
 
 function groupByCategory(rules: RuleMeta[]) {

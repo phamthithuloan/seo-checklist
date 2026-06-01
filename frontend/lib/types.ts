@@ -8,7 +8,8 @@ export type CategoryId =
   | "ul-li"
   | "ai-opt"
   | "eeat"
-  | "grammar";
+  | "grammar"
+  | "trust-ai";
 
 export type IssueKind =
   | "sentence"

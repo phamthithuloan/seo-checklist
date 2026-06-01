@@ -10,6 +10,7 @@ interface Props {
   title: string | null;
   sourceType: SourceType;
   aiProofread: boolean;
+  aiContentAudit: boolean;
   onKeywordChange: (v: string) => void;
   onMetaChange: (v: string) => void;
   onContentChange: (v: string) => void;
@@ -17,6 +18,7 @@ interface Props {
   onSourceTypeChange: (v: SourceType) => void;
   onSourceUrlChange: (v: string | null) => void;
   onAiProofreadChange: (v: boolean) => void;
+  onAiContentAuditChange: (v: boolean) => void;
   onAnalyze: () => void;
   onClear: () => void;
   analyzing?: boolean;
@@ -65,6 +67,7 @@ export default function InputForm({
   title,
   sourceType,
   aiProofread,
+  aiContentAudit,
   onKeywordChange,
   onMetaChange,
   onContentChange,
@@ -72,6 +75,7 @@ export default function InputForm({
   onSourceTypeChange,
   onSourceUrlChange,
   onAiProofreadChange,
+  onAiContentAuditChange,
   onAnalyze,
   onClear,
   analyzing = false,
@@ -451,13 +455,37 @@ export default function InputForm({
               <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
                 AI proofread ngữ pháp + chính tả
               </span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 ring-1 ring-amber-200 dark:ring-amber-700">
-                Mất phí
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-700">
+                Miễn phí
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Gọi Claude Sonnet 4.6 phát hiện lỗi ngữ pháp + chính tả tiếng Việt.
-              ~$0.01–0.03 / bài. Cần <span className="font-mono">ANTHROPIC_API_KEY</span> ở backend.
+              Gọi Google Gemini (free tier) phát hiện lỗi ngữ pháp + chính tả tiếng Việt.
+              Cần <span className="font-mono">GEMINI_API_KEY</span> ở backend.
+            </p>
+          </div>
+        </label>
+
+        <label className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+          <input
+            type="checkbox"
+            checked={aiContentAudit}
+            onChange={(e) => onAiContentAuditChange(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-300"
+          />
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                Kiểm chứng bài AI (nguồn + fact-check)
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-700">
+                Miễn phí
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              3 kiểm tra chạy local miễn phí: claim thiếu nguồn, link nguồn còn sống,
+              văn phong AI. Phần fact-check số liệu dùng Google Gemini (free tier) —
+              chỉ chạy nếu backend có <span className="font-mono">GEMINI_API_KEY</span>.
             </p>
           </div>
         </label>

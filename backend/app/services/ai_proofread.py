@@ -1,21 +1,17 @@
-"""AI-powered Vietnamese grammar + spelling check via Claude Sonnet 4.6.
+"""AI-powered Vietnamese grammar + spelling check via Google Gemini (free tier).
 
-Opt-in (cost-bearing). Returns None when ANTHROPIC_API_KEY is unset.
-System prompt cached via prompt caching — subsequent calls within ~5 min
-hit cache for the system block.
+Opt-in. Returns None when GEMINI_API_KEY is unset or the call fails.
 """
 
 import logging
 
-from anthropic import APIError, AsyncAnthropic
 from pydantic import BaseModel, Field
 
-from app.core.config import get_settings
 from app.schemas.analysis import CheckIssue, CheckResult
+from app.services.gemini import generate_structured
 
 logger = logging.getLogger(__name__)
 
-# Stable system prompt — any byte change invalidates the cache. Keep this frozen.
 _SYSTEM_PROMPT = """Bạn là một biên tập viên tiếng Việt chuyên nghiệp.
 
 Nhiệm vụ: đọc bài viết người dùng cung cấp và tìm:
@@ -53,61 +49,17 @@ _MAX_CONTENT_CHARS = 30_000
 
 
 async def proofread_content(content: str) -> tuple[CheckResult, CheckResult] | None:
-    """Run grammar + spelling check via Claude. Returns (grammar, spelling) check
-    results, or None if ANTHROPIC_API_KEY is not configured or the call fails."""
+    """Run grammar + spelling check via Gemini. Returns (grammar, spelling) check
+    results, or None if GEMINI_API_KEY is not configured or the call fails."""
 
-    settings = get_settings()
-    if not settings.anthropic_api_key:
-        logger.info("ANTHROPIC_API_KEY not set — skipping AI proofread")
-        return None
-
-    text = content[:_MAX_CONTENT_CHARS]
-    client = AsyncAnthropic(api_key=settings.anthropic_api_key)
-
-    try:
-        response = await client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=4096,
-            system=[
-                {
-                    "type": "text",
-                    "text": _SYSTEM_PROMPT,
-                    "cache_control": {"type": "ephemeral"},
-                }
-            ],
-            messages=[{"role": "user", "content": text}],
-            output_config={
-                "format": {
-                    "type": "json_schema",
-                    "schema": _ProofreadResult.model_json_schema(),
-                }
-            },
-        )
-    except APIError as exc:
-        logger.warning("AI proofread API error: %s", exc)
-        return None
-    except Exception as exc:
-        logger.warning("AI proofread unexpected error: %s", exc)
-        return None
-
-    text_block = next((b for b in response.content if b.type == "text"), None)
-    if text_block is None:
-        logger.warning("AI proofread: no text block in response")
-        return None
-
-    try:
-        parsed = _ProofreadResult.model_validate_json(text_block.text)
-    except Exception as exc:
-        logger.warning("AI proofread JSON parse failed: %s", exc)
-        return None
-
-    logger.info(
-        "AI proofread tokens: cache_read=%d cache_write=%d input=%d output=%d",
-        getattr(response.usage, "cache_read_input_tokens", 0) or 0,
-        getattr(response.usage, "cache_creation_input_tokens", 0) or 0,
-        response.usage.input_tokens,
-        response.usage.output_tokens,
+    parsed = await generate_structured(
+        _SYSTEM_PROMPT,
+        content[:_MAX_CONTENT_CHARS],
+        _ProofreadResult,
+        max_tokens=4096,
     )
+    if parsed is None:
+        return None
 
     grammar = CheckResult(
         id="grammar",

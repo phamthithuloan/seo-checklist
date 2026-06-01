@@ -1,4 +1,4 @@
-"""Outline ↔ content semantic comparison via Claude Sonnet 4.6.
+"""Outline ↔ content semantic comparison via Google Gemini (free tier).
 
 Different from outline_compare.py (rule-based heading match): this checks
 whether the article **follows the spirit of the outline**:
@@ -6,16 +6,15 @@ whether the article **follows the spirit of the outline**:
 - Did it cover all the info points the outline mentions?
 - Did it go deeper than outline (good) or stay sketchy (bad)?
 
-Returns None when ANTHROPIC_API_KEY is unset or the call fails.
+Returns None when GEMINI_API_KEY is unset or the call fails.
 """
 
 import logging
 
-from anthropic import APIError, AsyncAnthropic
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-from app.core.config import get_settings
 from app.schemas.analysis import OutlineAIAnalysis, OutlineDepthVerdict
+from app.services.gemini import generate_structured
 
 logger = logging.getLogger(__name__)
 
@@ -55,12 +54,12 @@ Trả về JSON đúng schema được cung cấp."""
 
 class _AIResult(BaseModel):
     format_followed: bool
-    format_notes: str = Field(max_length=400)
-    info_coverage_score: int = Field(ge=0, le=100)
-    missing_points: list[str] = Field(default_factory=list, max_length=8)
-    extra_depth_points: list[str] = Field(default_factory=list, max_length=6)
+    format_notes: str
+    info_coverage_score: int
+    missing_points: list[str] = []
+    extra_depth_points: list[str] = []
     depth_verdict: OutlineDepthVerdict
-    depth_summary: str = Field(max_length=400)
+    depth_summary: str
 
 
 _MAX_OUTLINE_CHARS = 8_000
@@ -71,74 +70,25 @@ async def analyze_outline_followthrough(
     outline: str,
     content: str,
 ) -> OutlineAIAnalysis | None:
-    """Compare article against outline using Claude. Returns None if disabled."""
-
-    settings = get_settings()
-    if not settings.anthropic_api_key:
-        logger.info("ANTHROPIC_API_KEY not set — skipping outline AI analysis")
-        return None
-
-    outline_trim = outline[:_MAX_OUTLINE_CHARS]
-    content_trim = content[:_MAX_CONTENT_CHARS]
+    """Compare article against outline using Gemini. Returns None if disabled."""
 
     user_msg = (
-        f"# OUTLINE\n\n{outline_trim}\n\n"
-        f"---\n\n# CONTENT\n\n{content_trim}"
+        f"# OUTLINE\n\n{outline[:_MAX_OUTLINE_CHARS]}\n\n"
+        f"---\n\n# CONTENT\n\n{content[:_MAX_CONTENT_CHARS]}"
     )
 
-    client = AsyncAnthropic(api_key=settings.anthropic_api_key)
-
-    try:
-        response = await client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=2048,
-            system=[
-                {
-                    "type": "text",
-                    "text": _SYSTEM_PROMPT,
-                    "cache_control": {"type": "ephemeral"},
-                }
-            ],
-            messages=[{"role": "user", "content": user_msg}],
-            output_config={
-                "format": {
-                    "type": "json_schema",
-                    "schema": _AIResult.model_json_schema(),
-                }
-            },
-        )
-    except APIError as exc:
-        logger.warning("outline AI compare APIError: %s", exc)
-        return None
-    except Exception as exc:
-        logger.warning("outline AI compare unexpected: %s", exc)
-        return None
-
-    text_block = next((b for b in response.content if b.type == "text"), None)
-    if text_block is None:
-        logger.warning("outline AI compare: no text block in response")
-        return None
-
-    try:
-        parsed = _AIResult.model_validate_json(text_block.text)
-    except Exception as exc:
-        logger.warning("outline AI compare JSON parse: %s", exc)
-        return None
-
-    logger.info(
-        "outline AI tokens: cache_read=%d cache_write=%d input=%d output=%d",
-        getattr(response.usage, "cache_read_input_tokens", 0) or 0,
-        getattr(response.usage, "cache_creation_input_tokens", 0) or 0,
-        response.usage.input_tokens,
-        response.usage.output_tokens,
+    parsed = await generate_structured(
+        _SYSTEM_PROMPT, user_msg, _AIResult, max_tokens=2048
     )
+    if parsed is None:
+        return None
 
     return OutlineAIAnalysis(
         format_followed=parsed.format_followed,
-        format_notes=parsed.format_notes,
-        info_coverage_score=parsed.info_coverage_score,
-        missing_points=parsed.missing_points,
-        extra_depth_points=parsed.extra_depth_points,
+        format_notes=parsed.format_notes[:400],
+        info_coverage_score=max(0, min(100, parsed.info_coverage_score)),
+        missing_points=parsed.missing_points[:8],
+        extra_depth_points=parsed.extra_depth_points[:6],
         depth_verdict=parsed.depth_verdict,
-        depth_summary=parsed.depth_summary,
+        depth_summary=parsed.depth_summary[:400],
     )

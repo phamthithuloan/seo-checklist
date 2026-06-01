@@ -16,6 +16,7 @@ from app.schemas.analysis import (
     AnalysisOut,
 )
 from app.core.config import get_settings
+from app.services.ai_content_audit import audit_ai_content
 from app.services.ai_proofread import proofread_content
 from app.services.outline_ai_compare import analyze_outline_followthrough
 from app.services.outline_compare import compare_outline
@@ -51,26 +52,37 @@ async def create_analysis(
         config=data.config,
     )
 
-    # Optional AI proofread (grammar + spelling) — opt-in, costs API tokens
+    # Optional AI add-ons — opt-in, cost API tokens. Both append checks; we
+    # re-aggregate score/counts once after whichever ran.
+    extra_added = False
+
     if data.ai_proofread:
         proofread = await proofread_content(data.content)
         if proofread is not None:
             grammar_check, spelling_check = proofread
             result.checks.extend([grammar_check, spelling_check])
-            # Re-aggregate counts/score to include grammar + spelling
-            result.total_checks = len(result.checks)
-            result.pass_count = sum(1 for c in result.checks if c.status == "pass")
-            result.fail_count = sum(1 for c in result.checks if c.status == "fail")
-            result.warn_count = sum(1 for c in result.checks if c.status == "warn")
-            result.score = (
-                math.floor(
-                    ((result.pass_count + result.warn_count * 0.5) / result.total_checks)
-                    * 100
-                    + 0.5
-                )
-                if result.total_checks > 0
-                else 0
+            extra_added = True
+
+    if data.ai_content_audit:
+        audit_checks = await audit_ai_content(data.content)
+        if audit_checks:
+            result.checks.extend(audit_checks)
+            extra_added = True
+
+    if extra_added:
+        result.total_checks = len(result.checks)
+        result.pass_count = sum(1 for c in result.checks if c.status == "pass")
+        result.fail_count = sum(1 for c in result.checks if c.status == "fail")
+        result.warn_count = sum(1 for c in result.checks if c.status == "warn")
+        result.score = (
+            math.floor(
+                ((result.pass_count + result.warn_count * 0.5) / result.total_checks)
+                * 100
+                + 0.5
             )
+            if result.total_checks > 0
+            else 0
+        )
 
     # Optional outline comparison
     outline_comparison_dict = None
@@ -83,9 +95,9 @@ async def create_analysis(
         comparison.ai_analysis = ai_analysis
         if ai_analysis is None:
             comparison.ai_reason_unavailable = (
-                "Backend chưa cấu hình ANTHROPIC_API_KEY — phân tích "
-                "follow-through outline cần Claude Sonnet 4.6."
-                if not get_settings().anthropic_api_key
+                "Backend chưa cấu hình GEMINI_API_KEY — phân tích "
+                "follow-through outline cần Google Gemini."
+                if not get_settings().gemini_api_key
                 else "AI không trả về kết quả (lỗi tạm thời, thử lại lần phân tích sau)."
             )
         outline_comparison_dict = comparison.model_dump()

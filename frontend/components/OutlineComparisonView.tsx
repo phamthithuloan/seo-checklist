@@ -187,7 +187,7 @@ export default function OutlineComparisonView({ comparison }: Props) {
                   Bài viết có follow outline không? (AI)
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Phân tích semantic: format, độ phủ thông tin, chiều sâu — Claude Sonnet 4.6.
+                  Phân tích semantic: format, độ phủ thông tin, chiều sâu — Google Gemini.
                 </p>
               </div>
             </div>
@@ -316,7 +316,7 @@ function AIUnavailableBlock({ reason }: { reason?: string | null }) {
       </p>
       <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
         {reason ||
-          "Tính năng cần ANTHROPIC_API_KEY trên backend. Admin cấu hình xong, các bài phân tích tiếp theo sẽ có phần này."}
+          "Tính năng cần GEMINI_API_KEY trên backend. Admin cấu hình xong, các bài phân tích tiếp theo sẽ có phần này."}
       </p>
     </div>
   );

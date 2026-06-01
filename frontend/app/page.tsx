@@ -40,6 +40,7 @@ export default function Page() {
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
   const [outline, setOutline] = useState("");
   const [aiProofread, setAiProofread] = useState(false);
+  const [aiContentAudit, setAiContentAudit] = useState(false);
 
   /* Result / flow */
   const [result, setResult] = useState<AnalysisOut | null>(null);
@@ -86,6 +87,7 @@ export default function Page() {
         config: Object.keys(cfg).length > 0 ? cfg : undefined,
         outline: outline.trim() ? outline : undefined,
         aiProofread: aiProofread || undefined,
+        aiContentAudit: aiContentAudit || undefined,
       });
       setResult(data);
       setResultVersion((v) => v + 1);
@@ -195,7 +197,7 @@ export default function Page() {
                   Phân tích bài viết SEO
                 </h2>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Dán bài viết và nhập từ khóa chính. Hệ thống có 39 tiêu chí (tự động, cấu hình, AI) — chỉ tính điểm các tiêu chí áp dụng cho bài.
+                  Dán bài viết và nhập từ khóa chính. Hệ thống có 43 tiêu chí (tự động, cấu hình, AI) — chỉ tính điểm các tiêu chí áp dụng cho bài.
                 </p>
               </div>
 
@@ -206,6 +208,7 @@ export default function Page() {
                 title={title}
                 sourceType={sourceType}
                 aiProofread={aiProofread}
+                aiContentAudit={aiContentAudit}
                 onKeywordChange={setKeyword}
                 onMetaChange={setMeta}
                 onContentChange={setContent}
@@ -213,6 +216,7 @@ export default function Page() {
                 onSourceTypeChange={setSourceType}
                 onSourceUrlChange={setSourceUrl}
                 onAiProofreadChange={setAiProofread}
+                onAiContentAuditChange={setAiContentAudit}
                 onAnalyze={handleAnalyze}
                 onClear={handleClear}
                 analyzing={analyzing}

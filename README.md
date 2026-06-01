@@ -7,7 +7,7 @@
 Monorepo:
 
 - `frontend/` — Next.js 14 (App Router, TypeScript, Tailwind). UI nhập bài, hiển thị điểm SEO, checklist, lịch sử, settings, dark mode.
-- `backend/` — FastAPI (Python 3.11+). Auth, lưu lịch sử, chạy 39 rule SEO, so sánh outline, fetch Google Docs / URL, AI proofread (Claude Sonnet 4.6), export Markdown/HTML.
+- `backend/` — FastAPI (Python 3.11+). Auth, lưu lịch sử, chạy 43 tiêu chí SEO (gồm category "Tin cậy & Kiểm chứng AI"), so sánh outline, fetch Google Docs / URL, AI proofread + fact-check (Google Gemini, free tier), export Markdown/HTML.
 - `docker-compose.yml` — Postgres 16 chạy local cho dev.
 
 ## Yêu cầu môi trường
@@ -87,7 +87,7 @@ seo-checklist/
    | `JWT_SECRET` | sinh ngẫu nhiên: `openssl rand -hex 32` |
    | `JWT_ACCESS_TOKEN_EXPIRE_MINUTES` | `10080` (7 ngày) |
    | `CORS_ORIGINS` | `https://<frontend-tên>.vercel.app` (cập nhật sau khi Vercel deploy) |
-   | `ANTHROPIC_API_KEY` | (optional) key Anthropic để bật AI proofread. Để trống = disable. |
+   | `GEMINI_API_KEY` | (optional, FREE) key Google Gemini để bật AI proofread + phân tích outline + fact-check. Lấy free tại https://aistudio.google.com/apikey. Để trống = 3 check heuristic vẫn chạy, các tính năng AI bị disable. |
    | `ENVIRONMENT` | `production` |
 
    *Không cần `PORT` — Railway tự cung cấp.*

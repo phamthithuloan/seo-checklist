@@ -54,6 +54,12 @@ const GrammarIcon = ({ className }: IconProps) => (
     <path d="M4 7V5h16v2M9 5v14M15 5v14M6 19h12" />
   </svg>
 );
+const TrustAiIcon = ({ className }: IconProps) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V5z" />
+    <path d="M9 12l2 2 4-4" />
+  </svg>
+);
 
 interface CategoryMeta {
   id: CategoryId;
@@ -123,11 +129,20 @@ export const CATEGORIES: CategoryMeta[] = [
   {
     id: "grammar",
     label: "Ngữ pháp - Chính tả",
-    description: "AI proofread bằng Claude Sonnet 4.6 (opt-in, mất phí)",
+    description: "AI proofread bằng Google Gemini (opt-in, free tier)",
     Icon: GrammarIcon,
     iconBg: "bg-slate-100",
     iconText: "text-slate-700",
     ringTint: "ring-slate-200",
+  },
+  {
+    id: "trust-ai",
+    label: "Tin cậy & Kiểm chứng AI",
+    description: "Claim thiếu nguồn, link nguồn, văn phong AI (free) + fact-check Gemini",
+    Icon: TrustAiIcon,
+    iconBg: "bg-rose-50",
+    iconText: "text-rose-600",
+    ringTint: "ring-rose-100",
   },
 ];
 
@@ -219,7 +234,7 @@ export default function CategorySection({
               ⚠ AI proofread không chạy cho bài này
             </p>
             <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
-              Tính năng kiểm tra ngữ pháp & chính tả bằng Claude Sonnet 4.6 hiện
+              Tính năng kiểm tra ngữ pháp & chính tả bằng Google Gemini hiện
               không trả về kết quả. Các nguyên nhân có thể:
             </p>
             <ul className="mt-2 text-xs text-amber-700 dark:text-amber-300 space-y-1 list-disc list-inside">
@@ -228,7 +243,7 @@ export default function CategorySection({
                 trong form nhập bài.
               </li>
               <li>
-                Backend chưa cấu hình <code>ANTHROPIC_API_KEY</code> — admin
+                Backend chưa cấu hình <code>GEMINI_API_KEY</code> — admin
                 cần set biến môi trường này trên Railway.
               </li>
               <li>

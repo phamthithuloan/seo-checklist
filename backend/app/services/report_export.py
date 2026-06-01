@@ -21,6 +21,7 @@ _CATEGORY_LABEL = {
     "eeat": "E-E-A-T",
     "cta": "CTA",
     "grammar": "Ngữ pháp / Chính tả",
+    "trust-ai": "Tin cậy & Kiểm chứng AI",
 }
 
 _OUTLINE_STATUS_LABEL = {
@@ -72,6 +73,7 @@ def render_analysis_markdown(a: Analysis) -> str:
         "branding",
         "eeat",
         "grammar",
+        "trust-ai",
         "cta",
     ]:
         rules = by_cat.get(cat)

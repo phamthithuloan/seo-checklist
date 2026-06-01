@@ -16,6 +16,7 @@ CategoryId = Literal[
     "ai-opt",
     "eeat",
     "grammar",
+    "trust-ai",
 ]
 SourceType = Literal["paste", "file", "gdocs", "url"]
 
@@ -126,6 +127,7 @@ class AnalysisCreate(CamelModel):
     config: AnalysisConfig | None = Field(default=None)
     outline: str | None = Field(default=None)
     ai_proofread: bool = Field(default=False)
+    ai_content_audit: bool = Field(default=False)
 
 
 class AnalysisOut(CamelModel):

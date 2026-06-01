@@ -76,6 +76,7 @@ export interface AnalysisCreate {
   config?: AnalysisConfig | null;
   outline?: string | null;
   aiProofread?: boolean;
+  aiContentAudit?: boolean;
 }
 
 export interface AnalysisOut extends AnalysisResult {
