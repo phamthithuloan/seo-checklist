@@ -114,6 +114,16 @@ export default function Page() {
     setResultVersion((v) => v + 1);
   };
 
+  const handleChangeView = (v: ViewMode) => {
+    // Clicking "Review bài viết" while a finished analysis is shown (e.g. one
+    // opened from history) should start a fresh analysis — clear the old result
+    // and form. While still drafting (no result yet), keep the typed content.
+    if (v === "review" && result) {
+      handleClear();
+    }
+    setView(v);
+  };
+
   const handleOpenFromHistory = async (id: string) => {
     setView("review");
     setAnalyzing(true);
@@ -150,7 +160,7 @@ export default function Page() {
     <div className="flex min-h-screen">
       <Sidebar
         view={view}
-        onChangeView={setView}
+        onChangeView={handleChangeView}
         resultVersion={resultVersion}
       />
 
