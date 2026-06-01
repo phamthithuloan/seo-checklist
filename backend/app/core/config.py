@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     # Get a free key at https://aistudio.google.com/apikey . If empty, fact-check
     # is skipped; the other 3 trust-ai checks are pure heuristics (always free).
     gemini_api_key: str | None = Field(default=None)
-    gemini_model: str = Field(default="gemini-2.0-flash")
+    gemini_model: str = Field(default="gemini-2.5-flash")
 
     # Email (password reset). All optional — if resend_api_key is empty,
     # /auth/forgot-password logs the reset link instead of sending email.
