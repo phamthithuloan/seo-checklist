@@ -271,31 +271,58 @@ async def _heuristic_source_verification(content: str) -> CheckResult:
     ) as http:
         codes = await asyncio.gather(*(_probe(http, u) for u in links))
 
-    dead = [
-        CheckIssue(
-            kind="link",
-            text=u,
-            note=f"Không truy cập được (HTTP {c})" if c else "Không kết nối được",
-        )
-        for u, c in zip(links, codes)
-        if c is None or c >= 400
-    ]
+    # Chỉ coi là CHẾT khi không kết nối được hoặc trang thực sự không tồn tại
+    # (404/410). 401/403/405/429/5xx thường là server chặn bot (vd mayoclinic,
+    # cloudflare) — link vẫn mở được trên trình duyệt → không gắn cờ "chết".
+    dead: list[CheckIssue] = []
+    blocked: list[CheckIssue] = []
+    for u, c in zip(links, codes):
+        if c is None:
+            dead.append(CheckIssue(kind="link", text=u, note="Không kết nối được (timeout/DNS)"))
+        elif c in (404, 410):
+            dead.append(CheckIssue(kind="link", text=u, note=f"Trang không tồn tại (HTTP {c})"))
+        elif c >= 400:
+            blocked.append(
+                CheckIssue(
+                    kind="link",
+                    text=u,
+                    note=f"Server chặn kiểm tra tự động (HTTP {c}) — hãy tự mở link xác nhận",
+                )
+            )
+        # 2xx/3xx → còn sống, bỏ qua
 
-    status = "fail" if dead else "pass"
-    detail = f"Kiểm tra {len(links)} link nguồn ngoài"
-    detail += f" · {len(dead)} link chết." if dead else " · tất cả còn truy cập được."
+    if dead:
+        status = "fail"
+    elif blocked:
+        status = "warn"
+    else:
+        status = "pass"
+
+    parts = [f"Kiểm tra {len(links)} link nguồn ngoài"]
+    if dead:
+        parts.append(f"{len(dead)} link chết")
+    if blocked:
+        parts.append(f"{len(blocked)} link chặn bot (không tự kiểm chứng được)")
+    if not dead and not blocked:
+        parts.append("tất cả còn truy cập được")
+
+    if dead:
+        rec = "Thay hoặc sửa các link nguồn đã chết (404 / không kết nối được)."
+    elif blocked:
+        rec = (
+            "Một số nguồn chặn kiểm tra tự động (403…) — tự mở link trên trình duyệt "
+            "để xác nhận còn sống & đúng nội dung."
+        )
+    else:
+        rec = None
+
     return _check(
         id_="source-verification",
         label="Nguồn dẫn kiểm chứng được",
         status=status,
-        detail=detail,
-        recommendation=(
-            None
-            if not dead
-            else "Thay hoặc sửa các link nguồn đã chết — nguồn không truy cập được "
-            "làm bài mất độ tin cậy."
-        ),
-        issues=dead,
+        detail=" · ".join(parts) + ".",
+        recommendation=rec,
+        issues=dead + blocked,
     )
 
 

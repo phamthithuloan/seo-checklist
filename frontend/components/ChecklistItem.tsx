@@ -200,7 +200,7 @@ function IssueRow({ issue }: { issue: CheckIssue }) {
           </span>
         )}
         <span
-          className={`flex-1 min-w-0 break-words ${isCode ? "font-mono text-[12.5px] text-slate-700" : "text-slate-700"}`}
+          className={`flex-1 min-w-0 break-words text-slate-700 dark:text-slate-200 ${isCode ? "font-mono text-[12.5px]" : ""}`}
         >
           {issue.text}
         </span>
