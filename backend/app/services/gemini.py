@@ -23,8 +23,10 @@ T = TypeVar("T", bound=BaseModel)
 # Substrings marking transient Gemini errors worth retrying (free tier hits these
 # often): 503 high-demand, 429 rate-limit, 500 internal, deadline/timeout.
 _TRANSIENT = ("503", "unavailable", "429", "resource_exhausted", "500", "internal", "deadline", "timeout")
-_RETRIES = 4
-_BACKOFF = (1.5, 3.0, 5.0)  # seconds before retry 2, 3, 4
+_RETRIES = 6
+# Free-tier endpoints throw 503 "high demand" in bursts; spread retries over ~30s
+# so an opt-in AI check rides out a spike instead of silently coming back empty.
+_BACKOFF = (1.0, 2.0, 4.0, 7.0, 10.0)  # before retry 2..6
 
 
 async def _generate_with_retry(make_coro):
