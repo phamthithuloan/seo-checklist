@@ -1,3 +1,4 @@
+import asyncio
 import re
 from uuid import UUID
 
@@ -75,37 +76,50 @@ async def create_analysis(
         config=data.config,
     )
 
-    # Optional AI add-ons — opt-in. Append their checks; when a feature is
-    # requested but GEMINI_API_KEY is missing, append an "inactive" placeholder
-    # so the checklist shows it (greyed, not scored) instead of hiding it.
+    # Optional AI add-ons — opt-in, each a Gemini call. Run them CONCURRENTLY so
+    # total wait ≈ slowest single call (not the sum). When a feature is requested
+    # but unavailable (no key / transient error) we append an "inactive"
+    # placeholder so the checklist shows it (greyed, not scored) instead of hiding.
     gemini_on = bool(get_settings().gemini_api_key)
-    extra_added = False
+    outline_text = data.outline.strip() if data.outline else None
+
+    async def _run_proofread():
+        return await proofread_content(data.content) if data.ai_proofread else None
+
+    async def _run_audit():
+        return await audit_ai_content(data.content) if data.ai_content_audit else None
+
+    async def _run_outline():
+        return (
+            await analyze_outline_followthrough(outline=outline_text, content=data.content)
+            if outline_text
+            else None
+        )
+
+    proofread, audit_checks, outline_ai = await asyncio.gather(
+        _run_proofread(), _run_audit(), _run_outline()
+    )
 
     if data.ai_proofread:
-        proofread = await proofread_content(data.content)
         if proofread is not None:
             result.checks.extend(proofread)
         else:
-            # No result: either no key (needs-api) or a transient failure (error).
             result.checks.append(
                 _inactive_ai("grammar", "Ngữ pháp đúng, diễn đạt mạch lạc", "grammar", gemini_on)
             )
             result.checks.append(
                 _inactive_ai("spelling", "Không có lỗi chính tả", "grammar", gemini_on)
             )
-        extra_added = True
 
     if data.ai_content_audit:
-        audit_checks = await audit_ai_content(data.content)
         if audit_checks:
             result.checks.extend(audit_checks)
         if not any(c.id == "fact-check" for c in result.checks):
             result.checks.append(
                 _inactive_ai("fact-check", "Không có thông tin sai / bịa", "trust-ai", gemini_on)
             )
-        extra_added = True
 
-    if extra_added:
+    if data.ai_proofread or data.ai_content_audit:
         agg = score_checks(result.checks)
         result.total_checks = agg["total"]
         result.pass_count = agg["pass"]
@@ -113,20 +127,16 @@ async def create_analysis(
         result.warn_count = agg["warn"]
         result.score = agg["score"]
 
-    # Optional outline comparison
+    # Optional outline comparison (rule-based merge + AI follow-through computed above)
     outline_comparison_dict = None
-    outline_text = data.outline.strip() if data.outline else None
     if outline_text:
         comparison = compare_outline(outline_text, data.content)
-        ai_analysis = await analyze_outline_followthrough(
-            outline=outline_text, content=data.content
-        )
-        comparison.ai_analysis = ai_analysis
-        if ai_analysis is None:
+        comparison.ai_analysis = outline_ai
+        if outline_ai is None:
             comparison.ai_reason_unavailable = (
                 "Backend chưa cấu hình GEMINI_API_KEY — phân tích "
                 "follow-through outline cần Google Gemini."
-                if not get_settings().gemini_api_key
+                if not gemini_on
                 else "AI không trả về kết quả (lỗi tạm thời, thử lại lần phân tích sau)."
             )
         outline_comparison_dict = comparison.model_dump()

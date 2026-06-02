@@ -9,6 +9,7 @@ import CategorySection, { CATEGORIES, type StatusFilter } from "@/components/Cat
 import PriorityFixes from "@/components/PriorityFixes";
 import ArticleHighlight from "@/components/ArticleHighlight";
 import CompetitorCompare from "@/components/CompetitorCompare";
+import AnalyzingCard from "@/components/AnalyzingCard";
 import HistoryList from "@/components/HistoryList";
 import ChecklistSettings from "@/components/ChecklistSettings";
 import OutlineInput from "@/components/OutlineInput";
@@ -239,7 +240,9 @@ export default function Page() {
 
               <OutlineInput outline={outline} onOutlineChange={setOutline} />
 
-              {result ? (
+              {analyzing ? (
+                <AnalyzingCard aiOn={aiProofread || aiContentAudit || !!outline.trim()} />
+              ) : result ? (
                 <>
                   <div id="overview" className="scroll-mt-24">
                     <ScoreCard result={result} />
