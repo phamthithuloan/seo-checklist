@@ -147,6 +147,8 @@ class CompareRequest(CamelModel):
 class CompareResult(CamelModel):
     yours: CompetitorMetrics
     competitors: list[CompetitorEntry]
+    content_gaps: list[str] = Field(default_factory=list)
+    ai_note: str | None = None
 
 
 class AnalysisCreate(CamelModel):

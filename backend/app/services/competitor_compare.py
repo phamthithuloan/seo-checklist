@@ -8,12 +8,14 @@ import asyncio
 import re
 
 from fastapi import HTTPException
+from pydantic import BaseModel
 
 from app.schemas.analysis import (
     CompetitorEntry,
     CompetitorMetrics,
     CompareResult,
 )
+from app.services.gemini import gemini_available, generate_structured
 from app.services.web_fetcher import fetch_url_as_markdown
 
 _H2_RE = re.compile(r"^##\s+\S", re.MULTILINE)
@@ -47,24 +49,65 @@ def compute_metrics(content: str, keyword: str) -> CompetitorMetrics:
     )
 
 
-async def _fetch_one(url: str, keyword: str) -> CompetitorEntry:
+async def _fetch_one(url: str, keyword: str) -> tuple[CompetitorEntry, str]:
     try:
         title, markdown = await fetch_url_as_markdown(url)
-        return CompetitorEntry(
+        entry = CompetitorEntry(
             url=url, title=title, metrics=compute_metrics(markdown, keyword)
         )
+        return entry, markdown
     except HTTPException as exc:
-        return CompetitorEntry(url=url, error=str(exc.detail))
+        return CompetitorEntry(url=url, error=str(exc.detail)), ""
     except Exception as exc:  # noqa: BLE001
-        return CompetitorEntry(url=url, error=f"Không xử lý được URL: {exc}")
+        return CompetitorEntry(url=url, error=f"Không xử lý được URL: {exc}"), ""
+
+
+class _GapResult(BaseModel):
+    gaps: list[str] = []
+
+
+_GAP_SYSTEM = """Bạn là chuyên gia SEO. So sánh BÀI CỦA USER với các bài ĐỐI THỦ \
+(cùng chủ đề). Liệt kê các chủ đề / mục / khía cạnh mà đối thủ CÓ đề cập nhưng bài \
+user THIẾU hoặc làm sơ sài hơn — để user bổ sung cho đầy đủ hơn đối thủ.
+
+Quy tắc: mỗi item ngắn gọn, CỤ THỂ (≤120 ký tự), nêu rõ nội dung còn thiếu (vd \
+"Thiếu mục so sánh chi phí giữa các phương pháp"). Tối đa 8 item, ưu tiên quan trọng \
+nhất. Nếu bài user đã bao phủ đầy đủ → trả gaps rỗng. Trả JSON đúng schema."""
+
+_MAX_USER_CHARS = 8_000
+_MAX_COMP_CHARS = 5_000
+
+
+async def _content_gaps(
+    content: str, keyword: str, comps: list[tuple[str, str]]
+) -> tuple[list[str], str | None]:
+    if not comps:
+        return [], None
+    if not gemini_available():
+        return [], "Cần GEMINI_API_KEY ở backend để AI gợi ý nội dung còn thiếu."
+
+    parts = [f"# BÀI CỦA USER (từ khoá: {keyword})\n\n{content[:_MAX_USER_CHARS]}"]
+    for i, (name, md) in enumerate(comps, 1):
+        parts.append(f"# ĐỐI THỦ {i}: {name}\n\n{md[:_MAX_COMP_CHARS]}")
+    user_msg = "\n\n---\n\n".join(parts)
+
+    parsed = await generate_structured(_GAP_SYSTEM, user_msg, _GapResult, max_tokens=1024)
+    if parsed is None:
+        return [], "AI tạm thời không trả về kết quả — thử lại sau."
+    return parsed.gaps[:8], None
 
 
 async def compare_with_competitors(
     content: str, keyword: str, competitor_urls: list[str]
 ) -> CompareResult:
     urls = [u.strip() for u in competitor_urls if u.strip()][:_MAX_URLS]
-    competitors = await asyncio.gather(*(_fetch_one(u, keyword) for u in urls))
+    fetched = await asyncio.gather(*(_fetch_one(u, keyword) for u in urls))
+    entries = [e for e, _ in fetched]
+    comp_texts = [(e.title or e.url, md) for e, md in fetched if md]
+    gaps, note = await _content_gaps(content, keyword, comp_texts)
     return CompareResult(
         yours=compute_metrics(content, keyword),
-        competitors=list(competitors),
+        competitors=entries,
+        content_gaps=gaps,
+        ai_note=note,
     )

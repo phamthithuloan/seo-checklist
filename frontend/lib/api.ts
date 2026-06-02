@@ -132,6 +132,8 @@ export interface CompetitorEntry {
 export interface CompareResult {
   yours: CompetitorMetrics;
   competitors: CompetitorEntry[];
+  contentGaps: string[];
+  aiNote?: string | null;
 }
 
 /* ───────── Token helpers ───────── */

@@ -159,6 +159,24 @@ export default function CompetitorCompare({
           </div>
         )}
 
+        {result && (result.contentGaps.length > 0 || result.aiNote) && (
+          <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 ring-1 ring-amber-200 dark:ring-amber-800 p-4">
+            <p className="text-sm font-semibold text-amber-800 dark:text-amber-200 mb-2 flex items-center gap-2">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a7 7 0 0 0-4 12.7c.7.5 1 1.3 1 2.1V18h6v-1.2c0-.8.3-1.6 1-2.1A7 7 0 0 0 12 2zM9 22h6M10 18h4" /></svg>
+              Nội dung đối thủ có mà bạn thiếu
+            </p>
+            {result.contentGaps.length > 0 ? (
+              <ul className="space-y-1.5 text-sm text-amber-800 dark:text-amber-200">
+                {result.contentGaps.map((g, i) => (
+                  <li key={i} className="flex gap-2"><span className="text-amber-500">+</span><span>{g}</span></li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-amber-700 dark:text-amber-300">{result.aiNote}</p>
+            )}
+          </div>
+        )}
+
         {result?.competitors.some((c) => c.error) && (
           <div className="text-xs text-amber-600 dark:text-amber-400 space-y-1">
             {result.competitors.filter((c) => c.error).map((c, i) => (
