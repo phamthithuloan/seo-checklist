@@ -194,7 +194,7 @@ export default function Page() {
             </div>
             <div className="flex items-center gap-2">
               {view === "review" && result && (
-                <ExportMenu analysisId={result.id} />
+                <ExportMenu analysisId={result.id} result={result} />
               )}
               <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-700 ring-1 ring-brand-100 dark:bg-brand-500/10 dark:text-brand-300 dark:ring-brand-400/30">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
@@ -363,7 +363,58 @@ export default function Page() {
   );
 }
 
-function ExportMenu({ analysisId }: { analysisId: string }) {
+const PDF_CAT_LABELS: Record<string, string> = {
+  technical: "Technical SEO",
+  readability: "Tốt cho người đọc",
+  "ul-li": "UL-LI",
+  "ai-opt": "Tối ưu cho AI",
+  branding: "Branding",
+  eeat: "E-E-A-T",
+  grammar: "Ngữ pháp - Chính tả",
+  "trust-ai": "Tin cậy & Kiểm chứng AI",
+  cta: "CTA",
+};
+
+function buildPrintHtml(r: AnalysisOut): string {
+  const esc = (s: string) =>
+    (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const scored = r.checks.filter((c) => !c.inactive);
+  const cats = Array.from(new Set(r.checks.map((c) => c.category)));
+  const badge = (c: { status: string; inactive?: string | null }) => {
+    if (c.inactive) return `<span style="color:#94a3b8">○ Chưa chấm</span>`;
+    if (c.status === "pass") return `<span style="color:#059669">✓ Pass</span>`;
+    if (c.status === "warn") return `<span style="color:#d97706">▲ Warn</span>`;
+    return `<span style="color:#e11d48">✕ Fail</span>`;
+  };
+  const sections = cats
+    .map((cat) => {
+      const items = r.checks.filter((c) => c.category === cat);
+      if (!items.length) return "";
+      const rows = items
+        .map(
+          (c) =>
+            `<tr><td style="padding:4px 10px;white-space:nowrap">${badge(c)}</td><td style="padding:4px 10px"><b>${esc(c.label)}</b><br><span style="color:#475569;font-size:12px">${esc(c.detail)}</span></td></tr>`,
+        )
+        .join("");
+      return `<h3 style="margin:18px 0 6px;color:#0f172a">${esc(PDF_CAT_LABELS[cat] || cat)}</h3><table style="width:100%;border-collapse:collapse;font-size:13px">${rows}</table>`;
+    })
+    .join("");
+  return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Báo cáo SEO — ${esc(r.title || r.keyword)}</title>
+<style>body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#1e293b;max-width:820px;margin:24px auto;padding:0 20px;line-height:1.5}
+h1{font-size:22px;margin:0 0 4px}.muted{color:#64748b;font-size:13px}
+.score{display:inline-block;font-size:34px;font-weight:700;color:#0e7490}
+.sum{margin:10px 0 4px;font-size:14px}tr{border-top:1px solid #f1f5f9}
+@media print{body{margin:0}}</style></head><body>
+<h1>Báo cáo SEO — ${esc(r.title || r.keyword)}</h1>
+<p class="muted">Từ khoá: <b>${esc(r.keyword)}</b> · ${r.wordCount} từ · mật độ ${r.keywordDensity}%</p>
+<p><span class="score">${r.score}</span><span class="muted">/100</span></p>
+<p class="sum">Chấm ${scored.length} tiêu chí — <b style="color:#059669">${r.passCount} Pass</b> · <b style="color:#d97706">${r.warnCount} Warn</b> · <b style="color:#e11d48">${r.failCount} Fail</b></p>
+${sections}
+<p class="muted" style="margin-top:24px;border-top:1px solid #e2e8f0;padding-top:8px">MindGate · SEO Content Reviewer</p>
+</body></html>`;
+}
+
+function ExportMenu({ analysisId, result }: { analysisId: string; result: AnalysisOut }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -379,6 +430,19 @@ function ExportMenu({ analysisId }: { analysisId: string }) {
     } finally {
       setBusy(false);
     }
+  };
+
+  const printPdf = () => {
+    setOpen(false);
+    const w = window.open("", "_blank");
+    if (!w) {
+      setError("Trình duyệt chặn cửa sổ in — cho phép pop-up rồi thử lại.");
+      return;
+    }
+    w.document.write(buildPrintHtml(result));
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 300);
   };
 
   return (
@@ -397,6 +461,13 @@ function ExportMenu({ analysisId }: { analysisId: string }) {
       </button>
       {open && (
         <div className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-white dark:bg-slate-900 shadow-soft ring-1 ring-slate-200 dark:ring-slate-700 overflow-hidden z-20">
+          <button
+            type="button"
+            onClick={printPdf}
+            className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+          >
+            PDF (in / lưu PDF)
+          </button>
           <button
             type="button"
             onClick={() => download("markdown")}
