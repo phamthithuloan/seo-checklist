@@ -80,8 +80,6 @@ const CATEGORY_META: Record<
   },
 };
 
-// grammar + trust-ai cố ý KHÔNG ở đây: chúng là các tiêu chí AID, bật/tắt theo
-// từng bài qua 2 checkbox AI ở form phân tích (tránh điều khiển trùng 2 nơi).
 const CATEGORY_ORDER: CategoryId[] = [
   "technical",
   "readability",
@@ -89,6 +87,8 @@ const CATEGORY_ORDER: CategoryId[] = [
   "ai-opt",
   "branding",
   "eeat",
+  "grammar",
+  "trust-ai",
 ];
 
 function groupByCategory(rules: RuleMeta[]) {
@@ -155,12 +155,10 @@ export default function ChecklistSettings({ onChange }: Props) {
   };
 
   const stats = (() => {
-    // Only the rule-based categories shown here (AI checks live in the analyze form).
-    const shown = ALL_RULES.filter((r) => CATEGORY_ORDER.includes(r.category));
-    const total = shown.length;
+    const total = ALL_RULES.length;
     const byKind = { auto: 0, config: 0, heuristic: 0 };
     let enabledCount = 0;
-    for (const r of shown)
+    for (const r of ALL_RULES)
       if (enabled.has(r.id)) {
         enabledCount++;
         byKind[r.kind]++;
@@ -186,7 +184,7 @@ export default function ChecklistSettings({ onChange }: Props) {
             best-effort
           </p>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-            Các tiêu chí AI (ngữ pháp, chính tả, kiểm chứng nội dung) bật/tắt theo từng bài bằng 2 ô tick ở form phân tích — không cấu hình ở đây.
+            Nhóm AI (Ngữ pháp - Chính tả, Tin cậy &amp; Kiểm chứng AI) cũng nằm trong checklist; bạn có thể tắt nhanh cho từng bài bằng 2 ô tick ở form phân tích.
           </p>
         </div>
         <div className="flex items-center gap-2">

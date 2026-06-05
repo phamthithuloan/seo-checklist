@@ -179,10 +179,12 @@ _CONCLUSION_RE = re.compile(
     r"tạm kết|tóm lại|tóm tắt|lời khuyên|nhận xét chung|đánh giá chung)\b",
     re.IGNORECASE | re.MULTILINE,
 )
-# Closing-paragraph cues — many bài kết luận bằng đoạn văn, không có heading riêng.
+# Closing-paragraph cues — nhiều bài kết luận bằng đoạn văn, không có heading riêng.
+# Không dùng \b (ranh giới từ kém ổn định với tiếng Việt Unicode) — match cụm trực tiếp.
 _CONCLUSION_CUE_RE = re.compile(
-    r"\b(?:tóm lại|nhìn chung|tổng kết lại|kết lại|như vậy|trên đây là|trên đây "
-    r"là toàn bộ|qua bài viết|hy vọng|hi vọng|chúc bạn|tựu chung|nói tóm lại)\b",
+    r"(?:tóm lại|nói tóm lại|nhìn chung|tổng kết lại|kết lại|như vậy,|"
+    r"qua bài|trên đây|cuối cùng,|cuối cùng thì|mong rằng|hy vọng|hi vọng|"
+    r"chúc bạn|chúc các bạn|bạn đã (?:hiểu|biết|nắm)|tựu chung|vừa rồi là|đừng quên)",
     re.IGNORECASE,
 )
 _HEADING_LINE_RE = re.compile(r"^#{1,6}\s+.*$", re.MULTILINE)
@@ -652,7 +654,9 @@ def analyze_content(
 
     # 15. Conclusion (kết bài) — heading kết, HOẶC cụm kết ở ~25% cuối bài.
     has_conclusion_heading = bool(_CONCLUSION_RE.search(content))
-    tail = content[int(len(content) * 0.75) :] if content else ""
+    # Cụm kết tìm trong ~3 đoạn cuối (không theo % ký tự — bắt được cả bài ngắn).
+    _paras = [p for p in _PARAGRAPH_SPLIT_RE.split(content) if p.strip()]
+    tail = "\n".join(_paras[-3:]) if _paras else content
     has_conclusion_cue = bool(_CONCLUSION_CUE_RE.search(tail))
     has_conclusion = has_conclusion_heading or has_conclusion_cue
     add(
