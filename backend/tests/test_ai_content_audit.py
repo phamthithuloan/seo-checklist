@@ -83,5 +83,8 @@ async def test_audit_runs_heuristics_without_gemini_key(monkeypatch):
     )
     assert checks is not None
     ids = {c.id for c in checks}
-    assert ids == {"claim-sourcing", "source-verification", "ai-tone"}
+    # Heuristics always run; source-accuracy shows as inactive needs-api (no key).
+    assert ids == {"claim-sourcing", "source-verification", "ai-tone", "source-accuracy"}
     assert "fact-check" not in ids  # skipped without GEMINI_API_KEY
+    sa = next(c for c in checks if c.id == "source-accuracy")
+    assert sa.inactive == "needs-api"

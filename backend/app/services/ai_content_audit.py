@@ -17,9 +17,16 @@ import re
 from typing import Final
 
 import httpx
+from pydantic import BaseModel
 
 from app.schemas.analysis import CheckIssue, CheckResult
-from app.services.gemini import extract_json, generate_grounded
+from app.services.gemini import (
+    extract_json,
+    gemini_available,
+    generate_grounded,
+    generate_structured,
+)
+from app.services.web_fetcher import fetch_url_as_markdown
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +46,7 @@ def _check(
     detail: str,
     recommendation: str | None = None,
     issues: list[CheckIssue] | None = None,
+    inactive: str | None = None,
 ) -> CheckResult:
     return CheckResult(
         id=id_,
@@ -48,6 +56,7 @@ def _check(
         detail=detail,
         recommendation=recommendation,
         issues=issues or [],
+        inactive=inactive,  # type: ignore[arg-type]
     )
 
 
@@ -410,25 +419,142 @@ async def _gemini_fact_check(content: str) -> CheckResult | None:
 
 
 # ──────────────────────────────────────────────────────────────────────
+# 5. source-accuracy — nội dung có ĐÚNG theo nguồn dẫn không (Gemini)
+# ──────────────────────────────────────────────────────────────────────
+
+
+class _SrcMatch(BaseModel):
+    index: int
+    verdict: str  # supported | contradicted | unrelated
+    note: str = ""
+
+
+class _SrcMatchResult(BaseModel):
+    results: list[_SrcMatch] = []
+
+
+_SRC_SYSTEM = """Bạn kiểm tra ĐỘ CHÍNH XÁC: nội dung khẳng định trong bài có ĐÚNG \
+theo nguồn dẫn kèm theo không (không chỉ kiểm tra có nguồn, mà nội dung có khớp nguồn).
+
+User đưa danh sách mục, mỗi mục: index, claim (câu khẳng định trong bài, có dẫn 1 \
+link nguồn), source (nội dung trích từ chính trang nguồn đó).
+
+Với mỗi mục, verdict:
+- "supported": nguồn xác nhận ĐÚNG nội dung/số liệu của claim.
+- "contradicted": nguồn nói KHÁC / ngược (số liệu, sự kiện sai lệch so với claim).
+- "unrelated": nguồn KHÔNG đề cập nội dung của claim (gán nguồn sai chỗ).
+note: 1 câu ngắn nêu lý do nếu contradicted/unrelated. Trả JSON đúng schema."""
+
+_MAX_SRC_CLAIMS: Final = 5
+_SRC_SNIPPET: Final = 4_000
+
+
+async def _source_content_match(content: str) -> CheckResult:
+    label = "Nội dung khớp nguồn dẫn"
+    if not gemini_available():
+        return _check(
+            "source-accuracy", label, "warn",
+            "Cần GEMINI_API_KEY để đối chiếu nội dung bài với nguồn dẫn.",
+            inactive="needs-api",
+        )
+
+    # Collect check-worthy claims (stat/authority) that cite a link.
+    claims: list[tuple[str, str]] = []
+    for s in _split_sentences(content):
+        if not (_PCT_RE.search(s) or _NUM_UNIT_RE.search(s) or _AUTHORITY_RE.search(s)):
+            continue
+        urls = _extract_external_links(s)
+        if urls:
+            claims.append((s[:300], urls[0]))
+        if len(claims) >= _MAX_SRC_CLAIMS:
+            break
+
+    if not claims:
+        return _check(
+            "source-accuracy", label, "pass",
+            "Không có khẳng định nào kèm link nguồn để đối chiếu nội dung.",
+        )
+
+    async def _fetch(u: str) -> str:
+        try:
+            _, md = await fetch_url_as_markdown(u)
+            return md
+        except Exception:  # noqa: BLE001
+            return ""
+
+    mds = await asyncio.gather(*(_fetch(u) for _, u in claims))
+    items = [
+        (i, c, u, md)
+        for i, ((c, u), md) in enumerate(zip(claims, mds))
+        if md
+    ]
+    if not items:
+        return _check(
+            "source-accuracy", label, "warn",
+            "Không đọc được trang nguồn để đối chiếu (link chặn bot / chết).",
+        )
+
+    parts = [
+        f"### Mục {i}\nclaim: {c}\nsource ({u}): {md[:_SRC_SNIPPET]}"
+        for i, c, u, md in items
+    ]
+    parsed = await generate_structured(
+        _SRC_SYSTEM, "\n\n".join(parts), _SrcMatchResult, max_tokens=1024
+    )
+    if parsed is None:
+        return _check(
+            "source-accuracy", label, "warn",
+            "Gemini free tier đang bận / chạm giới hạn — thử lại sau.",
+            inactive="error",
+        )
+
+    by_idx = {i: (c, u) for i, c, u, _ in items}
+    bad = [r for r in parsed.results if r.verdict in ("contradicted", "unrelated")]
+    issues = []
+    for r in bad:
+        c, u = by_idx.get(r.index, ("", ""))
+        tag = "SAI so với nguồn" if r.verdict == "contradicted" else "Nguồn không liên quan claim"
+        issues.append(
+            CheckIssue(kind="quote", text=c[:200], note=f"{tag}: {r.note} — {u}"[:280])
+        )
+
+    status = "fail" if bad else "pass"
+    detail = (
+        f"Đối chiếu {len(items)} khẳng định có nguồn — {len(bad)} chỗ nội dung KHÔNG khớp nguồn."
+        if bad
+        else f"Đối chiếu {len(items)} khẳng định có nguồn — nội dung khớp với nguồn dẫn."
+    )
+    return _check(
+        "source-accuracy", label, status, detail,
+        recommendation=None
+        if not bad
+        else "Sửa nội dung cho đúng với nguồn dẫn, hoặc thay nguồn cho khớp khẳng định.",
+        issues=issues,
+    )
+
+
+# ──────────────────────────────────────────────────────────────────────
 # Public entry
 # ──────────────────────────────────────────────────────────────────────
 
 
 async def audit_ai_content(content: str) -> list[CheckResult] | None:
-    """Run trust-ai checks. The 3 heuristic checks always run (free, no key);
-    fact-check runs only if GEMINI_API_KEY is configured. Returns the list of
-    checks (never None as long as content is non-empty)."""
+    """Run trust-ai checks. Heuristic checks always run (free, no key); the
+    Gemini-backed checks (fact-check, source-accuracy) degrade gracefully when
+    no key. Returns the list of checks (never None for non-empty content)."""
 
     text = content[:_MAX_CONTENT_CHARS]
 
-    source_check, fact_check = await asyncio.gather(
+    source_check, fact_check, source_acc = await asyncio.gather(
         _heuristic_source_verification(text),
         _gemini_fact_check(text),
+        _source_content_match(text),
     )
 
     checks: list[CheckResult] = [
         _heuristic_claim_sourcing(text),
         source_check,
+        source_acc,
     ]
     if fact_check is not None:
         checks.append(fact_check)

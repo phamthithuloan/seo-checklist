@@ -12,7 +12,7 @@ export default function AnalyzingCard({ aiOn }: { aiOn: boolean }) {
   }, []);
 
   const steps = [
-    "Chấm 43 tiêu chí cấu trúc (tức thì)",
+    "Chấm 44 tiêu chí cấu trúc (tức thì)",
     ...(aiOn
       ? [
           "Gọi AI: ngữ pháp & chính tả",

@@ -43,8 +43,10 @@ export default function Page() {
   const [sourceType, setSourceType] = useState<SourceType>("paste");
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
   const [outline, setOutline] = useState("");
-  const [aiProofread, setAiProofread] = useState(false);
-  const [aiContentAudit, setAiContentAudit] = useState(false);
+  // Default ON: accuracy + grammar/spelling + tone are the core value of the tool
+  // (user runs them on almost every article). Untick to save Gemini free-tier quota.
+  const [aiProofread, setAiProofread] = useState(true);
+  const [aiContentAudit, setAiContentAudit] = useState(true);
 
   /* Result / flow */
   const [result, setResult] = useState<AnalysisOut | null>(null);
@@ -212,7 +214,7 @@ export default function Page() {
                   Phân tích bài viết SEO
                 </h2>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Dán bài viết và nhập từ khóa chính. Hệ thống có 43 tiêu chí (tự động, cấu hình, AI) — chỉ tính điểm các tiêu chí áp dụng cho bài.
+                  Dán bài viết và nhập từ khóa chính. Hệ thống có 44 tiêu chí (tự động, cấu hình, AI) — chỉ tính điểm các tiêu chí áp dụng cho bài.
                 </p>
               </div>
 

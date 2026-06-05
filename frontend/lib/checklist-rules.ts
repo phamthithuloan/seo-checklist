@@ -334,6 +334,14 @@ export const ALL_RULES: RuleMeta[] = [
     kind: "heuristic",
   },
   {
+    id: "source-accuracy",
+    label: "Nội dung khớp nguồn dẫn",
+    category: "trust-ai",
+    description:
+      "Gemini: với claim có link, fetch nguồn + đối chiếu nội dung bài có ĐÚNG theo nguồn không.",
+    kind: "auto",
+  },
+  {
     id: "fact-check",
     label: "Không có thông tin sai / bịa",
     category: "trust-ai",
