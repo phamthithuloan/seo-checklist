@@ -14,6 +14,8 @@ from app.schemas.analysis import (
     AnalysisCreate,
     AnalysisListItem,
     AnalysisOut,
+    AutoFixRequest,
+    AutoFixResult,
     CheckResult,
     CompareRequest,
     CompareResult,
@@ -23,7 +25,9 @@ from app.services.ai_content_audit import audit_ai_content
 from app.services.ai_proofread import proofread_content
 from app.services.outline_ai_compare import analyze_outline_followthrough
 from app.services.outline_compare import compare_outline
+from app.services.auto_fix import autofix_article
 from app.services.competitor_compare import compare_with_competitors
+from app.services.gemini import gemini_available
 from app.services.report_export import render_analysis_html, render_analysis_markdown
 from app.services.seo_analyzer import analyze_content, score_checks
 
@@ -177,6 +181,27 @@ async def compare_competitors(
         keyword=data.keyword,
         competitor_urls=data.competitor_urls,
     )
+
+
+@router.post("/autofix", response_model=AutoFixResult)
+async def autofix(
+    data: AutoFixRequest,
+    user: User = Depends(get_current_user),
+) -> AutoFixResult:
+    """Rewrite the article fixing flagged issues (grammar, tone, structure) via
+    Gemini, preserving meaning + sources. Returns improved Markdown."""
+    if not gemini_available():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cần GEMINI_API_KEY ở backend để dùng tự động sửa bài.",
+        )
+    improved = await autofix_article(data.content, data.keyword, data.issues)
+    if improved is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Gemini tạm thời không xử lý được (bận / giới hạn) — thử lại sau.",
+        )
+    return AutoFixResult(content=improved)
 
 
 @router.get("", response_model=list[AnalysisListItem])

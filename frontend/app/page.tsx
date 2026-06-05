@@ -8,6 +8,7 @@ import ScoreCard from "@/components/ScoreCard";
 import CategorySection, { CATEGORIES, type StatusFilter } from "@/components/CategorySection";
 import PriorityFixes from "@/components/PriorityFixes";
 import ArticleHighlight from "@/components/ArticleHighlight";
+import AutoFix from "@/components/AutoFix";
 import CompetitorCompare from "@/components/CompetitorCompare";
 import AnalyzingCard from "@/components/AnalyzingCard";
 import HistoryList from "@/components/HistoryList";
@@ -253,6 +254,8 @@ export default function Page() {
                   <PriorityFixes checks={result.checks} />
 
                   <ArticleHighlight content={result.content} checks={result.checks} />
+
+                  <AutoFix result={result} />
 
                   <div className="flex items-end justify-between gap-3 flex-wrap">
                     <div className="space-y-1">

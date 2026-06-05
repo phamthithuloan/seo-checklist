@@ -151,6 +151,16 @@ class CompareResult(CamelModel):
     ai_note: str | None = None
 
 
+class AutoFixRequest(CamelModel):
+    keyword: str = Field(min_length=1, max_length=255)
+    content: str = Field(min_length=1)
+    issues: list[str] = Field(default_factory=list)
+
+
+class AutoFixResult(CamelModel):
+    content: str
+
+
 class AnalysisCreate(CamelModel):
     """Request body for POST /analysis."""
 

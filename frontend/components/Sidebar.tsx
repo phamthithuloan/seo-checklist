@@ -74,6 +74,7 @@ interface SubItem {
 
 const SUB_ITEMS: SubItem[] = [
   { id: "overview", label: "Tổng quan" },
+  { id: "auto-fix", label: "Tự động sửa bài" },
   { id: "cat-technical", label: "Technical SEO" },
   { id: "cat-readability", label: "Tốt cho người đọc" },
   { id: "cat-ul-li", label: "UL-LI" },

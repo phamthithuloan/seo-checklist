@@ -275,6 +275,9 @@ export const api = {
     compare(data: { keyword: string; content: string; competitorUrls: string[] }) {
       return request<CompareResult>("/analysis/compare", { method: "POST", body: data });
     },
+    autofix(data: { keyword: string; content: string; issues: string[] }) {
+      return request<{ content: string }>("/analysis/autofix", { method: "POST", body: data });
+    },
     /** Build a URL the browser can download directly. Auth handled in download helper. */
     exportUrl(id: string, format: "markdown" | "html" = "markdown") {
       return `${API_URL}/analysis/${id}/export?format=${format}`;
