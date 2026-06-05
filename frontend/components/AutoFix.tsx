@@ -3,12 +3,24 @@
 import { useState } from "react";
 import { api, ApiError, type AnalysisOut } from "@/lib/api";
 
-/** AI rewrites the article fixing flagged issues → preview + download .md/.html. */
-export default function AutoFix({ result }: { result: AnalysisOut }) {
+/** AI rewrites the article fixing flagged issues → preview + download .md/.html,
+ *  then re-score the fixed article to confirm it improved. */
+export default function AutoFix({
+  result,
+  aiProofread,
+  aiContentAudit,
+}: {
+  result: AnalysisOut;
+  aiProofread: boolean;
+  aiContentAudit: boolean;
+}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fixed, setFixed] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [rechecking, setRechecking] = useState(false);
+  const [recheck, setRecheck] = useState<AnalysisOut | null>(null);
+  const [recheckError, setRecheckError] = useState<string | null>(null);
 
   const run = async () => {
     setError(null);
@@ -26,10 +38,34 @@ export default function AutoFix({ result }: { result: AnalysisOut }) {
         issues,
       });
       setFixed(r.content);
+      setRecheck(null);
+      setRecheckError(null);
     } catch (e) {
       setError(e instanceof ApiError ? e.detail : "Tự động sửa thất bại.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const recheckFixed = async () => {
+    if (!fixed) return;
+    setRecheckError(null);
+    setRechecking(true);
+    try {
+      const r = await api.analysis.create({
+        keyword: result.keyword,
+        metaDescription: result.metaDescription || "",
+        content: fixed,
+        sourceType: "paste",
+        title: result.title ? `${result.title} (đã sửa)` : undefined,
+        aiProofread: aiProofread || undefined,
+        aiContentAudit: aiContentAudit || undefined,
+      });
+      setRecheck(r);
+    } catch (e) {
+      setRecheckError(e instanceof ApiError ? e.detail : "Chấm lại thất bại.");
+    } finally {
+      setRechecking(false);
     }
   };
 
@@ -97,6 +133,53 @@ export default function AutoFix({ result }: { result: AnalysisOut }) {
             </div>
             <div className="rounded-xl bg-slate-50 dark:bg-slate-800/60 ring-1 ring-slate-200 dark:ring-slate-700 p-4 text-sm leading-relaxed text-slate-700 dark:text-slate-200 whitespace-pre-wrap break-words max-h-[32rem] overflow-y-auto">
               {fixed}
+            </div>
+
+            <div className="pt-1 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={recheckFixed}
+                disabled={rechecking}
+                className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-xl ring-1 ring-brand-200 dark:ring-brand-700 text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/40 text-sm font-medium disabled:opacity-50 transition"
+              >
+                {rechecking ? "Đang chấm lại…" : "↻ Chấm lại bài đã sửa"}
+              </button>
+              {recheckError && (
+                <div className="mt-2 rounded-lg bg-rose-50 dark:bg-rose-900/30 ring-1 ring-rose-200 dark:ring-rose-700 px-3 py-2 text-sm text-rose-700 dark:text-rose-300">{recheckError}</div>
+              )}
+              {recheck &&
+                (() => {
+                  const up = recheck.score >= result.score;
+                  const fails = recheck.checks.filter((c) => !c.inactive && c.status === "fail");
+                  return (
+                    <div className="mt-3 rounded-xl ring-1 ring-slate-200 dark:ring-slate-700 p-4 bg-white dark:bg-slate-900">
+                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                        Bài đã sửa: điểm{" "}
+                        <span className="num text-slate-500">{result.score}</span>
+                        {" → "}
+                        <span className={`num font-bold ${up ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>
+                          {recheck.score}
+                        </span>
+                        <span className="text-slate-400">/100</span>{" "}
+                        {up ? "▲" : "▼"}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Pass {recheck.passCount} · Warn {recheck.warnCount} · Fail {recheck.failCount}
+                        {fails.length === 0 ? " — không còn lỗi Fail 🎉" : ""}
+                      </p>
+                      {fails.length > 0 && (
+                        <ul className="mt-2 space-y-1 text-xs text-slate-600 dark:text-slate-400">
+                          {fails.slice(0, 8).map((c) => (
+                            <li key={c.id} className="flex gap-2">
+                              <span className="text-rose-500">✕</span>
+                              <span>{c.label} — {c.detail}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })()}
             </div>
           </>
         )}

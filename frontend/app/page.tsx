@@ -255,7 +255,7 @@ export default function Page() {
 
                   <ArticleHighlight content={result.content} checks={result.checks} />
 
-                  <AutoFix result={result} />
+                  <AutoFix result={result} aiProofread={aiProofread} aiContentAudit={aiContentAudit} />
 
                   <div className="flex items-end justify-between gap-3 flex-wrap">
                     <div className="space-y-1">
