@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { CheckResult } from "@/lib/types";
 
-type Match = { start: number; end: number; status: "fail" | "warn"; tip: string };
+type Match = { start: number; end: number; status: "fail" | "warn"; tip: string; ruleId: string };
 
 const HIGHLIGHT_KINDS = new Set(["sentence", "paragraph", "quote", "word"]);
 
@@ -38,7 +38,8 @@ export default function ArticleHighlight({
           start: idx,
           end: idx + len,
           status: c.status === "fail" ? "fail" : "warn",
-          tip: `${c.label}${it.note ? " — " + it.note : ""}`,
+          tip: `${c.label}${it.note ? " — " + it.note : ""} (bấm để tới tiêu chí)`,
+          ruleId: c.id,
         });
       }
     }
@@ -81,7 +82,7 @@ export default function ArticleHighlight({
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Xem bài với lỗi được tô màu</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {count} đoạn được đánh dấu · <span className="text-rose-600 dark:text-rose-400">đỏ = Fail</span>, <span className="text-amber-600 dark:text-amber-400">vàng = Warn</span>
+              {count} đoạn · <span className="text-rose-600 dark:text-rose-400">đỏ = Fail</span>, <span className="text-amber-600 dark:text-amber-400">vàng = Warn</span> · di chuột để xem lỗi, bấm để tới tiêu chí
             </p>
           </div>
         </div>
@@ -97,10 +98,14 @@ export default function ArticleHighlight({
                 <mark
                   key={i}
                   title={s.m.tip}
-                  className={`rounded px-0.5 cursor-help ${
+                  onClick={() => {
+                    const el = document.getElementById(`check-${s.m!.ruleId}`);
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  className={`rounded px-0.5 cursor-pointer hover:ring-2 hover:ring-offset-1 ${
                     s.m.status === "fail"
-                      ? "bg-rose-200/70 dark:bg-rose-500/30 text-inherit"
-                      : "bg-amber-200/70 dark:bg-amber-500/30 text-inherit"
+                      ? "bg-rose-200/70 dark:bg-rose-500/30 hover:ring-rose-400 text-inherit"
+                      : "bg-amber-200/70 dark:bg-amber-500/30 hover:ring-amber-400 text-inherit"
                   }`}
                 >
                   {s.text}

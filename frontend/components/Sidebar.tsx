@@ -359,12 +359,14 @@ function SubMenu({
 
       {!empty && (
         <div className="space-y-0.5">
-          {SUB_ITEMS.map((s) => (
+          {/* Only show sections that actually exist on the page (e.g. "So sánh
+              Outline" hides when the article has no outline) — no dead/greyed items. */}
+          {SUB_ITEMS.filter((s) => available.has(s.id)).map((s) => (
             <SubButton
               key={s.id}
               label={s.label}
               active={activeSub === s.id}
-              disabled={!available.has(s.id)}
+              disabled={false}
               onClick={() => onJump(s.id)}
             />
           ))}

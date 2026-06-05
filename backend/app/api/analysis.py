@@ -34,7 +34,7 @@ def _inactive_ai(id_: str, label: str, category: str, has_key: bool) -> CheckRes
     'no API key' from 'temporary error/limit' so the message is accurate."""
     if has_key:
         reason = "error"
-        detail = "Tạm thời không chạy được (Gemini quá tải / giới hạn) — thử lại sau."
+        detail = "Gemini free tier đang bận / chạm giới hạn (5 lượt/phút) — phân tích lại sau ít phút là có."
     else:
         reason = "needs-api"
         detail = "Cần GEMINI_API_KEY ở backend để chạy tính năng AI này."

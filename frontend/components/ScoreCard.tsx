@@ -115,6 +115,27 @@ export default function ScoreCard({ result }: { result: AnalysisResult }) {
                   <Legend dot="bg-rose-500" label="Fail" value={result.failCount} />
                 </div>
               </div>
+
+              <details className="text-xs text-slate-500 dark:text-slate-400">
+                <summary className="cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 select-none">
+                  Cách tính điểm
+                </summary>
+                <div className="mt-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 ring-1 ring-slate-200 dark:ring-slate-700 p-3 space-y-1.5 leading-relaxed">
+                  <p>
+                    Mỗi tiêu chí: <b className="text-emerald-600 dark:text-emerald-400">Pass = 1đ</b> ·{" "}
+                    <b className="text-amber-600 dark:text-amber-400">Warn = 0,5đ</b> ·{" "}
+                    <b className="text-rose-600 dark:text-rose-400">Fail = 0đ</b>.
+                  </p>
+                  <p>Điểm = tổng điểm ÷ số tiêu chí đã chấm × 100:</p>
+                  <p className="num text-slate-700 dark:text-slate-300">
+                    = ({result.passCount}×1 + {result.warnCount}×0,5 + {result.failCount}×0) ÷ {total} × 100 ={" "}
+                    <b>{result.score}</b>/100
+                  </p>
+                  <p className="text-slate-400 dark:text-slate-500">
+                    Tiêu chí "Chưa chấm" (thiếu thông tin / API) không tính vào điểm.
+                  </p>
+                </div>
+              </details>
             </div>
           </div>
         </div>

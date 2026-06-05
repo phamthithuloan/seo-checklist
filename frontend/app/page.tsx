@@ -391,10 +391,22 @@ function buildPrintHtml(r: AnalysisOut): string {
       const items = r.checks.filter((c) => c.category === cat);
       if (!items.length) return "";
       const rows = items
-        .map(
-          (c) =>
-            `<tr><td style="padding:4px 10px;white-space:nowrap">${badge(c)}</td><td style="padding:4px 10px"><b>${esc(c.label)}</b><br><span style="color:#475569;font-size:12px">${esc(c.detail)}</span></td></tr>`,
-        )
+        .map((c) => {
+          const rec =
+            c.status !== "pass" && c.recommendation
+              ? `<div style="margin-top:4px;color:#0e7490;font-size:12px"><b>→ Cách sửa:</b> ${esc(c.recommendation)}</div>`
+              : "";
+          const iss = (c.issues || []).slice(0, 8);
+          const issHtml = iss.length
+            ? `<ul style="margin:4px 0 0;padding-left:16px;color:#64748b;font-size:12px">${iss
+                .map(
+                  (it) =>
+                    `<li>${esc((it.text || "").slice(0, 200))}${it.note ? ` <i>— ${esc(it.note)}</i>` : ""}</li>`,
+                )
+                .join("")}</ul>`
+            : "";
+          return `<tr><td style="padding:6px 10px;white-space:nowrap;vertical-align:top">${badge(c)}</td><td style="padding:6px 10px"><b>${esc(c.label)}</b><br><span style="color:#475569;font-size:12px">${esc(c.detail)}</span>${rec}${issHtml}</td></tr>`;
+        })
         .join("");
       return `<h3 style="margin:18px 0 6px;color:#0f172a">${esc(PDF_CAT_LABELS[cat] || cat)}</h3><table style="width:100%;border-collapse:collapse;font-size:13px">${rows}</table>`;
     })
@@ -409,6 +421,7 @@ h1{font-size:22px;margin:0 0 4px}.muted{color:#64748b;font-size:13px}
 <p class="muted">Từ khoá: <b>${esc(r.keyword)}</b> · ${r.wordCount} từ · mật độ ${r.keywordDensity}%</p>
 <p><span class="score">${r.score}</span><span class="muted">/100</span></p>
 <p class="sum">Chấm ${scored.length} tiêu chí — <b style="color:#059669">${r.passCount} Pass</b> · <b style="color:#d97706">${r.warnCount} Warn</b> · <b style="color:#e11d48">${r.failCount} Fail</b></p>
+<p class="muted">Điểm = (Pass×1 + Warn×0,5 + Fail×0) ÷ ${scored.length} × 100 = ${r.score}/100. Dưới đây là chi tiết từng tiêu chí kèm cách sửa.</p>
 ${sections}
 <p class="muted" style="margin-top:24px;border-top:1px solid #e2e8f0;padding-top:8px">MindGate · SEO Content Reviewer</p>
 </body></html>`;

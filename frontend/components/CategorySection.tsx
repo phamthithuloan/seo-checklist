@@ -308,11 +308,12 @@ const INACTIVE_STYLE = {
     fallback: "Cần GEMINI_API_KEY ở backend để chạy tính năng AI này.",
   },
   error: {
-    pill: "Tạm thời lỗi",
+    pill: "Đang quá tải",
     pillCls:
-      "bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 ring-rose-200 dark:ring-rose-700",
-    bar: "bg-rose-300 dark:bg-rose-600",
-    fallback: "Tạm thời không chạy được (Gemini quá tải / giới hạn) — thử lại sau.",
+      "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 ring-amber-200 dark:ring-amber-700",
+    bar: "bg-amber-300 dark:bg-amber-600",
+    fallback:
+      "Gemini free tier đang bận / chạm giới hạn (5 lượt/phút) — phân tích lại sau ít phút là có.",
   },
   "not-run": {
     pill: "Chưa bật",

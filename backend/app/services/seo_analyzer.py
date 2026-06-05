@@ -175,8 +175,15 @@ _H1_RE = re.compile(r"^#(?!#)\s+(.+)$", re.MULTILINE)
 _H3_RE = re.compile(r"^###(?!#)\s+(.+)$", re.MULTILINE)
 _BOLD_RE = re.compile(r"\*\*[^*\n]+\*\*")
 _CONCLUSION_RE = re.compile(
-    r"^#{1,4}\s*(?:kết luận|tổng kết|kết bài|lời kết|tóm lại)\b",
+    r"^#{1,4}\s*(?:kết luận|tổng kết(?:\s*lại)?|kết bài|lời kết|kết lại|đúc kết|"
+    r"tạm kết|tóm lại|tóm tắt|lời khuyên|nhận xét chung|đánh giá chung)\b",
     re.IGNORECASE | re.MULTILINE,
+)
+# Closing-paragraph cues — many bài kết luận bằng đoạn văn, không có heading riêng.
+_CONCLUSION_CUE_RE = re.compile(
+    r"\b(?:tóm lại|nhìn chung|tổng kết lại|kết lại|như vậy|trên đây là|trên đây "
+    r"là toàn bộ|qua bài viết|hy vọng|hi vọng|chúc bạn|tựu chung|nói tóm lại)\b",
+    re.IGNORECASE,
 )
 _HEADING_LINE_RE = re.compile(r"^#{1,6}\s+.*$", re.MULTILINE)
 
@@ -643,22 +650,29 @@ def analyze_content(
         )
     )
 
-    # 15. Conclusion (kết bài)
-    has_conclusion = bool(_CONCLUSION_RE.search(content))
+    # 15. Conclusion (kết bài) — heading kết, HOẶC cụm kết ở ~25% cuối bài.
+    has_conclusion_heading = bool(_CONCLUSION_RE.search(content))
+    tail = content[int(len(content) * 0.75) :] if content else ""
+    has_conclusion_cue = bool(_CONCLUSION_CUE_RE.search(tail))
+    has_conclusion = has_conclusion_heading or has_conclusion_cue
     add(
         CheckResult(
             id="conclusion",
             label="Có Kết bài",
             category="technical",
             status="pass" if has_conclusion else "warn",
-            detail="Đã có heading kết bài."
-            if has_conclusion
-            else "Chưa thấy phần kết bài.",
+            detail=(
+                "Đã có heading kết bài."
+                if has_conclusion_heading
+                else "Có đoạn kết ở cuối bài."
+                if has_conclusion_cue
+                else "Chưa thấy phần kết bài."
+            ),
             recommendation=None
             if has_conclusion
             else (
-                'Thêm heading "Kết luận" / "Tổng kết" ở cuối bài — '
-                "tóm tắt 2-3 ý chính, tách riêng khỏi CTA."
+                'Thêm phần kết — heading "Kết luận"/"Tổng kết" hoặc đoạn kết '
+                '("Tóm lại…", "Nhìn chung…") tóm tắt 2-3 ý chính, tách khỏi CTA.'
             ),
         )
     )
