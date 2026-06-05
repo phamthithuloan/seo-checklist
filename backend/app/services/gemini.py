@@ -30,17 +30,35 @@ _RETRIES = 3
 _BACKOFF = (1.0, 2.0)  # before retry 2, 3
 
 
-async def _generate_with_retry(make_coro):
-    """Run an async Gemini request thunk, retrying transient errors with backoff."""
+_RETRY_DELAY_RE = re.compile(r"retry\s*(?:delay)?['\"]?\s*[:in]*\s*['\"]?(\d+(?:\.\d+)?)\s*s", re.I)
+
+
+def _retry_delay_secs(msg: str) -> float | None:
+    m = _RETRY_DELAY_RE.search(msg)
+    return float(m.group(1)) if m else None
+
+
+async def _generate_with_retry(make_coro, *, patient: bool = False):
+    """Run an async Gemini request thunk, retrying transient errors.
+
+    patient=True: deliberate one-shot actions (e.g. auto-fix) wait out the free
+    tier's per-minute window — on 429 we sleep the server-suggested retryDelay
+    (capped ~55s) and retry once, so it succeeds instead of failing immediately.
+    """
+    retries = 2 if patient else _RETRIES
     last: Exception | None = None
-    for attempt in range(_RETRIES):
+    for attempt in range(retries):
         try:
             return await make_coro()
         except Exception as exc:  # noqa: BLE001
             last = exc
             msg = str(exc).lower()
-            if attempt < _RETRIES - 1 and any(t in msg for t in _TRANSIENT):
-                await asyncio.sleep(_BACKOFF[attempt])
+            if attempt < retries - 1 and any(t in msg for t in _TRANSIENT):
+                if patient:
+                    delay = _retry_delay_secs(str(exc)) or 25.0
+                    await asyncio.sleep(min(delay + 2.0, 55.0))
+                else:
+                    await asyncio.sleep(_BACKOFF[attempt])
                 continue
             raise
     assert last is not None
@@ -85,8 +103,10 @@ async def generate_structured(
     schema: type[T],
     *,
     max_tokens: int = 4096,
+    patient: bool = False,
 ) -> T | None:
-    """JSON-mode generation validated against `schema` (no web tools)."""
+    """JSON-mode generation validated against `schema` (no web tools).
+    patient=True waits out the per-minute rate limit (for deliberate actions)."""
     client, types, model = _client()
     if client is None:
         return None
@@ -102,7 +122,8 @@ async def generate_structured(
                     temperature=0,
                     max_output_tokens=max_tokens,
                 ),
-            )
+            ),
+            patient=patient,
         )
     except Exception as exc:  # noqa: BLE001
         logger.warning("Gemini structured call failed: %s", exc)

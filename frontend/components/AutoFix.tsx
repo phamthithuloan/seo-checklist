@@ -122,7 +122,7 @@ export default function AutoFix({
           <div className="rounded-lg bg-rose-50 dark:bg-rose-900/30 ring-1 ring-rose-200 dark:ring-rose-700 px-3 py-2 text-sm text-rose-700 dark:text-rose-300">{error}</div>
         )}
         {loading && (
-          <p className="text-sm text-slate-500 dark:text-slate-400">Gemini đang viết lại bài… có thể mất 10–30s.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Gemini đang viết lại bài… 10–30s (có thể lâu hơn ~1 phút nếu đang chờ giới hạn free tier reset — cứ chờ nhé).</p>
         )}
         {fixed && (
           <>

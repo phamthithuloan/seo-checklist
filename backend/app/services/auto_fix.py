@@ -48,8 +48,10 @@ async def autofix_article(
         f"{issue_block}"
     )
 
+    # patient=True: auto-fix là thao tác chủ động — chờ qua giới hạn 5 lượt/phút
+    # rồi thử lại thay vì fail ngay khi quota vừa bị dùng bởi lần phân tích.
     parsed = await generate_structured(
-        _SYSTEM_PROMPT, user_msg, _FixResult, max_tokens=8192
+        _SYSTEM_PROMPT, user_msg, _FixResult, max_tokens=8192, patient=True
     )
     if parsed is None or not parsed.content.strip():
         return None
