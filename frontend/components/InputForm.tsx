@@ -9,16 +9,14 @@ interface Props {
   content: string;
   title: string | null;
   sourceType: SourceType;
-  aiProofread: boolean;
-  aiContentAudit: boolean;
+  aiProofreadOn: boolean;
+  aiAuditOn: boolean;
   onKeywordChange: (v: string) => void;
   onMetaChange: (v: string) => void;
   onContentChange: (v: string) => void;
   onTitleChange: (v: string | null) => void;
   onSourceTypeChange: (v: SourceType) => void;
   onSourceUrlChange: (v: string | null) => void;
-  onAiProofreadChange: (v: boolean) => void;
-  onAiContentAuditChange: (v: boolean) => void;
   onAnalyze: () => void;
   onClear: () => void;
   analyzing?: boolean;
@@ -66,16 +64,14 @@ export default function InputForm({
   content,
   title,
   sourceType,
-  aiProofread,
-  aiContentAudit,
+  aiProofreadOn,
+  aiAuditOn,
   onKeywordChange,
   onMetaChange,
   onContentChange,
   onTitleChange,
   onSourceTypeChange,
   onSourceUrlChange,
-  onAiProofreadChange,
-  onAiContentAuditChange,
   onAnalyze,
   onClear,
   analyzing = false,
@@ -443,52 +439,28 @@ export default function InputForm({
           </p>
         </div>
 
-        <label className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-          <input
-            type="checkbox"
-            checked={aiProofread}
-            onChange={(e) => onAiProofreadChange(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-300"
-          />
+        {/* Reminder only — bật/tắt tiêu chí AI ở Checklist SEO (không tick ở đây). */}
+        <div className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-brand-50/60 dark:bg-brand-900/20 ring-1 ring-brand-100 dark:ring-brand-800">
+          <span className="mt-0.5 text-brand-500 shrink-0">
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9" /><path d="M12 8h.01M11 12h1v4h1" />
+            </svg>
+          </span>
           <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                AI proofread ngữ pháp + chính tả
+            <p className="text-sm font-medium text-slate-900 dark:text-slate-100 flex flex-wrap items-center gap-x-2 gap-y-1">
+              Tiêu chí AI:
+              <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${aiProofreadOn ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"}`}>
+                Ngữ pháp & chính tả {aiProofreadOn ? "BẬT" : "TẮT"}
               </span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-700">
-                Miễn phí
+              <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${aiAuditOn ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300" : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"}`}>
+                Kiểm chứng nội dung {aiAuditOn ? "BẬT" : "TẮT"}
               </span>
-            </div>
+            </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Gọi Google Gemini (free tier) phát hiện lỗi ngữ pháp + chính tả tiếng Việt.
-              Cần <span className="font-mono">GEMINI_API_KEY</span> ở backend.
+              Bật/tắt từng tiêu chí AI trong <b>Checklist SEO</b> (miễn phí, cần <span className="font-mono">GEMINI_API_KEY</span> ở backend).
             </p>
           </div>
-        </label>
-
-        <label className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-          <input
-            type="checkbox"
-            checked={aiContentAudit}
-            onChange={(e) => onAiContentAuditChange(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-300"
-          />
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                Kiểm chứng bài AI (nguồn + fact-check)
-              </span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-700">
-                Miễn phí
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              3 kiểm tra chạy local miễn phí: claim thiếu nguồn, link nguồn còn sống,
-              văn phong AI. Phần fact-check số liệu dùng Google Gemini (free tier) —
-              chỉ chạy nếu backend có <span className="font-mono">GEMINI_API_KEY</span>.
-            </p>
-          </div>
-        </label>
+        </div>
 
         {error && (
           <div className="rounded-lg bg-rose-50 dark:bg-rose-900/30 ring-1 ring-rose-200 dark:ring-rose-700 px-3 py-2 text-sm text-rose-700 dark:text-rose-300">

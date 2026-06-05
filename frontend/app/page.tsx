@@ -44,10 +44,17 @@ export default function Page() {
   const [sourceType, setSourceType] = useState<SourceType>("paste");
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
   const [outline, setOutline] = useState("");
-  // Default ON: accuracy + grammar/spelling + tone are the core value of the tool
-  // (user runs them on almost every article). Untick to save Gemini free-tier quota.
-  const [aiProofread, setAiProofread] = useState(true);
-  const [aiContentAudit, setAiContentAudit] = useState(true);
+  // AI checks are toggled in Checklist SEO (single source of truth), not here.
+  // Derive whether to run each AI batch from which AI rules are enabled.
+  const enabledRuleSet = new Set(getEnabledRules());
+  const aiProofreadOn = enabledRuleSet.has("grammar") || enabledRuleSet.has("spelling");
+  const aiAuditOn = [
+    "claim-sourcing",
+    "source-verification",
+    "source-accuracy",
+    "fact-check",
+    "ai-tone",
+  ].some((id) => enabledRuleSet.has(id));
 
   /* Result / flow */
   const [result, setResult] = useState<AnalysisOut | null>(null);
@@ -94,8 +101,8 @@ export default function Page() {
             : effectiveEnabled,
         config: Object.keys(cfg).length > 0 ? cfg : undefined,
         outline: outline.trim() ? outline : undefined,
-        aiProofread: aiProofread || undefined,
-        aiContentAudit: aiContentAudit || undefined,
+        aiProofread: aiProofreadOn || undefined,
+        aiContentAudit: aiAuditOn || undefined,
       });
       setResult(data);
       setResultVersion((v) => v + 1);
@@ -225,16 +232,14 @@ export default function Page() {
                 content={content}
                 title={title}
                 sourceType={sourceType}
-                aiProofread={aiProofread}
-                aiContentAudit={aiContentAudit}
+                aiProofreadOn={aiProofreadOn}
+                aiAuditOn={aiAuditOn}
                 onKeywordChange={setKeyword}
                 onMetaChange={setMeta}
                 onContentChange={setContent}
                 onTitleChange={setTitle}
                 onSourceTypeChange={setSourceType}
                 onSourceUrlChange={setSourceUrl}
-                onAiProofreadChange={setAiProofread}
-                onAiContentAuditChange={setAiContentAudit}
                 onAnalyze={handleAnalyze}
                 onClear={handleClear}
                 analyzing={analyzing}
@@ -244,7 +249,7 @@ export default function Page() {
               <OutlineInput outline={outline} onOutlineChange={setOutline} />
 
               {analyzing ? (
-                <AnalyzingCard aiOn={aiProofread || aiContentAudit || !!outline.trim()} />
+                <AnalyzingCard aiOn={aiProofreadOn || aiAuditOn || !!outline.trim()} />
               ) : result ? (
                 <>
                   <div id="overview" className="scroll-mt-24">
@@ -255,7 +260,7 @@ export default function Page() {
 
                   <ArticleHighlight content={result.content} checks={result.checks} />
 
-                  <AutoFix result={result} aiProofread={aiProofread} aiContentAudit={aiContentAudit} />
+                  <AutoFix result={result} aiProofread={aiProofreadOn} aiContentAudit={aiAuditOn} />
 
                   <div className="flex items-end justify-between gap-3 flex-wrap">
                     <div className="space-y-1">
