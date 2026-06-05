@@ -115,7 +115,7 @@ def _heuristic_claim_sourcing(content: str) -> CheckResult:
     status = "pass" if n == 0 else ("warn" if n <= 2 else "fail")
     return _check(
         id_="claim-sourcing",
-        label="Khẳng định có dẫn nguồn",
+        label="Dẫn nguồn cho khẳng định",
         status=status,
         detail=(
             "Không phát hiện số liệu/khẳng định mạnh nào thiếu nguồn."
@@ -204,7 +204,7 @@ def _heuristic_ai_tone(content: str) -> CheckResult:
 
     return _check(
         id_="ai-tone",
-        label="Văn phong tự nhiên (không máy móc)",
+        label="Văn phong AI",
         status=status,
         detail=(
             "Văn phong tự nhiên, không thấy cụm sáo rỗng đặc trưng."
@@ -262,7 +262,7 @@ async def _heuristic_source_verification(content: str) -> CheckResult:
     if not links:
         return _check(
             id_="source-verification",
-            label="Nguồn dẫn kiểm chứng được",
+            label="Link nguồn (còn sống)",
             status="warn",
             detail="Bài không có link nguồn ngoài nào để kiểm chứng.",
             recommendation="Với bài AI, nên dẫn link tới nguồn gốc của số liệu/sự kiện "
@@ -327,7 +327,7 @@ async def _heuristic_source_verification(content: str) -> CheckResult:
 
     return _check(
         id_="source-verification",
-        label="Nguồn dẫn kiểm chứng được",
+        label="Link nguồn (còn sống)",
         status=status,
         detail=" · ".join(parts) + ".",
         recommendation=rec,
@@ -405,7 +405,7 @@ async def _gemini_fact_check(content: str) -> CheckResult | None:
 
     return _check(
         id_="fact-check",
-        label="Không có thông tin sai / bịa",
+        label="Thông tin sai / bịa",
         status=status,
         detail=detail,
         recommendation=(
@@ -450,7 +450,7 @@ _SRC_SNIPPET: Final = 4_000
 
 
 async def _source_content_match(content: str) -> CheckResult:
-    label = "Nội dung khớp nguồn dẫn"
+    label = "Nội dung so với nguồn"
     if not gemini_available():
         return _check(
             "source-accuracy", label, "warn",

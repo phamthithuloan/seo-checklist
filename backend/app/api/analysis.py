@@ -109,10 +109,10 @@ async def create_analysis(
             result.checks.extend(proofread)
         else:
             result.checks.append(
-                _inactive_ai("grammar", "Ngữ pháp đúng, diễn đạt mạch lạc", "grammar", gemini_on)
+                _inactive_ai("grammar", "Ngữ pháp & diễn đạt", "grammar", gemini_on)
             )
             result.checks.append(
-                _inactive_ai("spelling", "Không có lỗi chính tả", "grammar", gemini_on)
+                _inactive_ai("spelling", "Lỗi chính tả", "grammar", gemini_on)
             )
 
     if data.ai_content_audit:
@@ -120,7 +120,7 @@ async def create_analysis(
             result.checks.extend(audit_checks)
         if not any(c.id == "fact-check" for c in result.checks):
             result.checks.append(
-                _inactive_ai("fact-check", "Không có thông tin sai / bịa", "trust-ai", gemini_on)
+                _inactive_ai("fact-check", "Thông tin sai / bịa", "trust-ai", gemini_on)
             )
 
     if data.ai_proofread or data.ai_content_audit:

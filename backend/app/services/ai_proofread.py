@@ -63,7 +63,7 @@ async def proofread_content(content: str) -> tuple[CheckResult, CheckResult] | N
 
     grammar = CheckResult(
         id="grammar",
-        label="Ngữ pháp đúng, diễn đạt mạch lạc",
+        label="Ngữ pháp & diễn đạt",
         category="grammar",
         status="pass" if not parsed.grammar_issues else "fail",
         detail=(
@@ -88,7 +88,7 @@ async def proofread_content(content: str) -> tuple[CheckResult, CheckResult] | N
 
     spelling = CheckResult(
         id="spelling",
-        label="Không có lỗi chính tả",
+        label="Lỗi chính tả",
         category="grammar",
         status="pass" if not parsed.spelling_issues else "fail",
         detail=(

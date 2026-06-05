@@ -42,7 +42,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "sentence-length",
-    label: "Câu ngắn",
+    label: "Độ dài câu",
     category: "readability",
     description: "Mỗi câu 20-30 từ, đặt dấu câu ngắt nghỉ phù hợp.",
     threshold: "≤ 30 từ / câu",
@@ -50,7 +50,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "paragraph-length",
-    label: "Đoạn ngắn",
+    label: "Độ dài đoạn",
     category: "readability",
     description: "Đoạn 60-80 từ (3-4 dòng, tối đa 5 dòng).",
     threshold: "≤ 100 từ / đoạn",
@@ -77,7 +77,7 @@ export const ALL_RULES: RuleMeta[] = [
   // ── Technical (auto + config) ─────────────────────────────────
   {
     id: "has-h1",
-    label: "Có Heading H1",
+    label: "Heading H1",
     category: "technical",
     description: "Đặt H1 duy nhất làm tiêu đề chính của bài.",
     threshold: "≥ 1 H1",
@@ -85,7 +85,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "h1-quality",
-    label: "H1 ≤ 63 ký tự + chứa từ khoá",
+    label: "Chất lượng H1 (độ dài + từ khoá)",
     category: "technical",
     description: "H1 ngắn gọn để hiển thị đủ trên SERP, chứa từ khoá chính.",
     threshold: "≤ 63 ký tự",
@@ -93,21 +93,21 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "has-h2",
-    label: "Có Heading H2",
+    label: "Heading H2",
     category: "technical",
     description: "Chia bài thành các section với cú pháp `## Tiêu đề`.",
     kind: "auto",
   },
   {
     id: "h2-keyword",
-    label: "H2 chứa từ khoá chính",
+    label: "Từ khoá trong H2",
     category: "technical",
     description: "Google ưu tiên heading khi xác định chủ đề.",
     kind: "auto",
   },
   {
     id: "sapo",
-    label: "Mở bài (Sapo) 3-5 dòng + chứa keyword",
+    label: "Mở bài (Sapo)",
     category: "technical",
     description: "Đoạn mở bài sau H1 sơ lược nội dung + chứa từ khoá chính.",
     threshold: "30 – 100 từ",
@@ -115,14 +115,14 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "conclusion",
-    label: "Có Kết bài",
+    label: "Kết bài",
     category: "technical",
     description: "Heading 'Kết luận' / 'Tổng kết' ở cuối bài.",
     kind: "auto",
   },
   {
     id: "meta-description",
-    label: "Meta description ≤ 165 ký tự",
+    label: "Độ dài meta description",
     category: "technical",
     description: "Độ dài meta hợp lệ để Google không cắt SERP.",
     threshold: "1 – 165 ký tự",
@@ -130,14 +130,14 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "meta-keyword",
-    label: "Meta description chứa từ khoá",
+    label: "Từ khoá trong meta description",
     category: "technical",
     description: "Đưa từ khoá chính vào meta, ưu tiên gần đầu.",
     kind: "auto",
   },
   {
     id: "keyword-density",
-    label: "Keyword density 1–3%",
+    label: "Mật độ từ khoá",
     category: "technical",
     description: "Mật độ từ khoá chính cân bằng.",
     threshold: "1% – 3%",
@@ -145,14 +145,14 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "internal-link",
-    label: "Có link trong bài",
+    label: "Link trong bài",
     category: "technical",
     description: "Markdown `[anchor](/path)` hoặc HTML `<a href='/...'>`.",
     kind: "auto",
   },
   {
     id: "secondary-keywords",
-    label: "Từ khoá phụ xuất hiện ≥1 lần",
+    label: "Từ khoá phụ",
     category: "technical",
     description: "Tool check mỗi từ khoá phụ trong list xuất hiện ≥1 lần.",
     kind: "config",
@@ -162,7 +162,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "product-link-coverage",
-    label: "Có link tới các sản phẩm nhắc trong bài",
+    label: "Link sản phẩm",
     category: "technical",
     description: "Tool check mỗi URL sản phẩm trong list có xuất hiện trong bài.",
     kind: "config",
@@ -172,7 +172,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "conclusion-not-cta",
-    label: "Kết bài không gộp chung CTA",
+    label: "Tách kết bài & CTA",
     category: "technical",
     description: "Heuristic: kết luận tách riêng khỏi CTA.",
     kind: "heuristic",
@@ -181,7 +181,7 @@ export const ALL_RULES: RuleMeta[] = [
   // ── UL-LI ─────────────────────────────────────────────────────
   {
     id: "bullet-list",
-    label: "Có Bullet List",
+    label: "Bullet list",
     category: "ul-li",
     description: "≥3 bullet trong bài — dễ scan.",
     threshold: "≥ 3 bullets",
@@ -189,7 +189,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "bold-emphasis",
-    label: "Có in đậm",
+    label: "In đậm",
     category: "ul-li",
     description: "Dùng `**chữ in đậm**` để highlight ý chính.",
     kind: "auto",
@@ -205,14 +205,14 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "tldr",
-    label: "TL;DR + bullet",
+    label: "TL;DR",
     category: "ai-opt",
     description: "Tóm tắt đầu/cuối bài dạng bullet.",
     kind: "auto",
   },
   {
     id: "lsi-coverage",
-    label: "Mỗi đoạn ≥3 từ LSI",
+    label: "Từ LSI mỗi đoạn",
     category: "ai-opt",
     description: "Tool đếm từ LSI trong mỗi đoạn — tăng cosine similarity.",
     kind: "config",
@@ -224,21 +224,21 @@ export const ALL_RULES: RuleMeta[] = [
   // ── Branding ──────────────────────────────────────────────────
   {
     id: "faq",
-    label: "Có FAQ / Câu hỏi thường gặp",
+    label: "FAQ / Câu hỏi thường gặp",
     category: "branding",
     description: "Cơ hội xuất hiện ở 'People Also Ask'.",
     kind: "auto",
   },
   {
     id: "cta",
-    label: "Có Call-to-Action",
+    label: "Call-to-Action (CTA)",
     category: "branding",
     description: "Liên hệ / Đăng ký / Tư vấn / Mua ngay / Nhận ngay / Đặt hàng.",
     kind: "auto",
   },
   {
     id: "brand-pronoun",
-    label: "Xưng hô nhất quán",
+    label: "Xưng hô",
     category: "branding",
     description:
       "Tool check xưng hô có xuất hiện + không lẫn lộn cách xưng khác.",
@@ -260,7 +260,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "brand-message",
-    label: "Thông điệp thương hiệu xuất hiện",
+    label: "Thông điệp thương hiệu",
     category: "branding",
     description: "Tool tìm chuỗi thông điệp xuất hiện trong bài.",
     kind: "config",
@@ -270,7 +270,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "ad-forbidden-words",
-    label: "Không dùng từ cấm quảng cáo",
+    label: "Từ cấm quảng cáo",
     category: "branding",
     description:
       "Tool flag nếu xuất hiện từ trong list cấm. Mặc định: 'tốt nhất', 'số 1', 'duy nhất', '100%'.",
@@ -281,7 +281,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "competitor-mention",
-    label: "Không so sánh đối thủ thiếu nguồn",
+    label: "So sánh đối thủ thiếu nguồn",
     category: "branding",
     description:
       "Tool flag nếu nhắc đối thủ kèm từ so sánh (hơn / tốt hơn / vượt trội).",
@@ -292,7 +292,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "cta-3s-quality",
-    label: "CTA đạt 3S (Simple / Specific / Strong)",
+    label: "Chất lượng CTA (3S)",
     category: "branding",
     description: "Heuristic: CTA ngắn (≤20 từ) + bắt đầu bằng động từ mạnh.",
     kind: "heuristic",
@@ -301,7 +301,7 @@ export const ALL_RULES: RuleMeta[] = [
   // ── Ngữ pháp - Chính tả (AI, opt-in) ──────────────────────────
   {
     id: "grammar",
-    label: "Ngữ pháp đúng, diễn đạt mạch lạc",
+    label: "Ngữ pháp & diễn đạt",
     category: "grammar",
     description:
       "AI proofread (Google Gemini) — phát hiện lỗi cú pháp, câu cụt, chủ-vị sai.",
@@ -309,7 +309,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "spelling",
-    label: "Không có lỗi chính tả",
+    label: "Lỗi chính tả",
     category: "grammar",
     description:
       "AI proofread (Google Gemini) — phát hiện từ viết sai chính tả + đề xuất sửa.",
@@ -319,7 +319,7 @@ export const ALL_RULES: RuleMeta[] = [
   // ── Tin cậy & Kiểm chứng AI (AI + web search, opt-in) ─────────
   {
     id: "claim-sourcing",
-    label: "Khẳng định có dẫn nguồn",
+    label: "Dẫn nguồn cho khẳng định",
     category: "trust-ai",
     description:
       "Heuristic (local, free): quét số liệu/khẳng định mạnh thiếu nguồn dẫn kèm.",
@@ -327,7 +327,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "source-verification",
-    label: "Nguồn dẫn kiểm chứng được",
+    label: "Link nguồn (còn sống)",
     category: "trust-ai",
     description:
       "Heuristic (local, free): fetch link nguồn ngoài — kiểm tra còn sống / chết.",
@@ -335,7 +335,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "source-accuracy",
-    label: "Nội dung khớp nguồn dẫn",
+    label: "Nội dung so với nguồn",
     category: "trust-ai",
     description:
       "Gemini: với claim có link, fetch nguồn + đối chiếu nội dung bài có ĐÚNG theo nguồn không.",
@@ -343,7 +343,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "fact-check",
-    label: "Không có thông tin sai / bịa",
+    label: "Thông tin sai / bịa",
     category: "trust-ai",
     description:
       "Google Gemini (free tier) + Google Search xác minh số liệu/sự kiện nổi bật.",
@@ -351,7 +351,7 @@ export const ALL_RULES: RuleMeta[] = [
   },
   {
     id: "ai-tone",
-    label: "Văn phong tự nhiên (không máy móc)",
+    label: "Văn phong AI",
     category: "trust-ai",
     description:
       "Heuristic (local, free): bắt cụm sáo rỗng / khuôn mẫu đặc trưng văn AI.",

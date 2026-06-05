@@ -250,7 +250,7 @@ def analyze_content(
     add(
         CheckResult(
             id="has-h2",
-            label="Có heading H2",
+            label="Heading H2",
             category="technical",
             status="pass" if has_h2 else "fail",
             detail=f"Tìm thấy {len(h2_matches)} H2." if has_h2 else "Không có H2 nào.",
@@ -283,7 +283,7 @@ def analyze_content(
     add(
         CheckResult(
             id="h2-keyword",
-            label="H2 chứa từ khóa chính",
+            label="Từ khoá trong H2",
             category="technical",
             status="pass" if h2_has_keyword else "fail",
             detail="Có H2 chứa từ khóa." if h2_has_keyword else "Chưa có H2 nào chứa từ khóa chính.",
@@ -309,7 +309,7 @@ def analyze_content(
     add(
         CheckResult(
             id="faq",
-            label="Có phần FAQ / Câu hỏi thường gặp",
+            label="FAQ / Câu hỏi thường gặp",
             category="branding",
             status="pass" if has_faq else "fail",
             detail="Đã tìm thấy mục FAQ." if has_faq else "Chưa thấy phần FAQ.",
@@ -335,7 +335,7 @@ def analyze_content(
     add(
         CheckResult(
             id="cta",
-            label="Có Call-to-Action",
+            label="Call-to-Action (CTA)",
             category="branding",
             status="pass" if cta_found else "fail",
             detail=f'CTA tìm thấy: "{cta_found}".' if cta_found else "Không có CTA rõ ràng.",
@@ -387,7 +387,7 @@ def analyze_content(
     add(
         CheckResult(
             id="meta-description",
-            label="Meta description ≤ 165 ký tự",
+            label="Độ dài meta description",
             category="technical",
             status=meta_status,  # type: ignore[arg-type]
             detail="Chưa nhập meta description."
@@ -420,7 +420,7 @@ def analyze_content(
     add(
         CheckResult(
             id="keyword-density",
-            label="Keyword density 1% – 3%",
+            label="Mật độ từ khoá",
             category="technical",
             status="pass" if density_ok else "fail",
             detail=f"Từ khóa xuất hiện {kw_count} lần ({density:.2f}%).",
@@ -433,7 +433,7 @@ def analyze_content(
     add(
         CheckResult(
             id="internal-link",
-            label="Có link trong bài",
+            label="Link trong bài",
             category="technical",
             status="pass" if has_internal_link else "fail",
             detail="Đã có link." if has_internal_link else "Không phát hiện link nào.",
@@ -463,7 +463,7 @@ def analyze_content(
     add(
         CheckResult(
             id="paragraph-length",
-            label="Đoạn văn ≤ 100 từ",
+            label="Độ dài đoạn",
             category="readability",
             status="pass" if long_paragraphs == 0 else "warn",
             detail="Tất cả đoạn đều có độ dài hợp lý."
@@ -495,7 +495,7 @@ def analyze_content(
     add(
         CheckResult(
             id="sentence-length",
-            label="Câu ≤ 30 từ",
+            label="Độ dài câu",
             category="readability",
             status="pass" if long_sentences == 0 else "warn",
             detail="Câu có độ dài hợp lý."
@@ -528,7 +528,7 @@ def analyze_content(
     add(
         CheckResult(
             id="tldr",
-            label="Có TL;DR / Tóm tắt dạng bullet",
+            label="TL;DR",
             category="ai-opt",
             status="pass" if tldr_ok else "fail",
             detail=tldr_detail,
@@ -557,7 +557,7 @@ def analyze_content(
     add(
         CheckResult(
             id="has-h1",
-            label="Có Heading H1",
+            label="Heading H1",
             category="technical",
             status="pass" if has_h1 else "fail",
             detail=f"Tìm thấy {len(h1_matches)} H1." if has_h1 else "Không có H1 nào.",
@@ -594,7 +594,7 @@ def analyze_content(
         add(
             CheckResult(
                 id="h1-quality",
-                label="H1 ≤ 63 ký tự + chứa từ khoá",
+                label="Chất lượng H1 (độ dài + từ khoá)",
                 category="technical",
                 status="pass" if h1_ok else "warn",
                 detail=h1_detail,
@@ -605,7 +605,7 @@ def analyze_content(
         add(
             CheckResult(
                 id="h1-quality",
-                label="H1 ≤ 63 ký tự + chứa từ khoá",
+                label="Chất lượng H1 (độ dài + từ khoá)",
                 category="technical",
                 status="fail",
                 detail="Bài chưa có H1 để kiểm tra.",
@@ -644,7 +644,7 @@ def analyze_content(
     add(
         CheckResult(
             id="sapo",
-            label="Mở bài (Sapo) 3-5 dòng + chứa từ khoá",
+            label="Mở bài (Sapo)",
             category="technical",
             status="pass" if sapo_ok else "warn",
             detail=sapo_detail,
@@ -662,7 +662,7 @@ def analyze_content(
     add(
         CheckResult(
             id="conclusion",
-            label="Có Kết bài",
+            label="Kết bài",
             category="technical",
             status="pass" if has_conclusion else "warn",
             detail=(
@@ -696,7 +696,7 @@ def analyze_content(
     add(
         CheckResult(
             id="meta-keyword",
-            label="Meta description chứa từ khoá",
+            label="Từ khoá trong meta description",
             category="technical",
             status=meta_kw_status,  # type: ignore[arg-type]
             detail=meta_kw_detail,
@@ -769,7 +769,7 @@ def analyze_content(
     add(
         CheckResult(
             id="bullet-list",
-            label="Có Bullet List",
+            label="Bullet list",
             category="ul-li",
             status="pass" if has_bullets else "warn",
             detail=f"Tìm thấy {bullet_count} dòng bullet."
@@ -790,7 +790,7 @@ def analyze_content(
     add(
         CheckResult(
             id="bold-emphasis",
-            label="Có in đậm",
+            label="In đậm",
             category="ul-li",
             status="pass" if has_bold else "warn",
             detail=f"Tìm thấy {bold_count} cụm in đậm."
@@ -850,7 +850,7 @@ def analyze_content(
         add(
             CheckResult(
                 id="secondary-keywords",
-                label="Từ khoá phụ xuất hiện ≥1 lần",
+                label="Từ khoá phụ",
                 category="technical",
                 status="pass" if ok else "fail",
                 detail=(
@@ -870,7 +870,7 @@ def analyze_content(
     else:
         add(_needs_config(
             "secondary-keywords",
-            "Từ khoá phụ xuất hiện ≥1 lần",
+            "Từ khoá phụ",
             "technical",
             "danh sách từ khoá phụ",
         ))
@@ -908,7 +908,7 @@ def analyze_content(
         ]
         if not body_paras:
             add(CheckResult(
-                id="lsi-coverage", label="Mỗi đoạn ≥3 từ LSI",
+                id="lsi-coverage", label="Từ LSI mỗi đoạn",
                 category="ai-opt", status="warn",
                 detail="Không có đoạn văn để kiểm tra.",
                 recommendation=None,
@@ -922,7 +922,7 @@ def analyze_content(
                     bad_paras.append((p, hits))
             ok = len(bad_paras) == 0
             add(CheckResult(
-                id="lsi-coverage", label="Mỗi đoạn ≥3 từ LSI",
+                id="lsi-coverage", label="Từ LSI mỗi đoạn",
                 category="ai-opt", status="pass" if ok else "warn",
                 detail=(
                     f"Đủ ≥3 LSI ở mọi đoạn."
@@ -944,7 +944,7 @@ def analyze_content(
             ))
     else:
         add(_needs_config(
-            "lsi-coverage", "Mỗi đoạn ≥3 từ LSI",
+            "lsi-coverage", "Từ LSI mỗi đoạn",
             "ai-opt", "danh sách từ LSI / cùng trường nghĩa",
         ))
 
@@ -981,13 +981,13 @@ def analyze_content(
                         CheckIssue(kind="word", text=p, note=f"{note} ({n} lần)")
                     )
         add(CheckResult(
-            id="brand-pronoun", label="Xưng hô nhất quán",
+            id="brand-pronoun", label="Xưng hô",
             category="branding", status=status_, detail=d, recommendation=rec,
             issues=pronoun_issues,
         ))
     else:
         add(_needs_config(
-            "brand-pronoun", "Xưng hô nhất quán",
+            "brand-pronoun", "Xưng hô",
             "branding", 'cách xưng hô (vd "Bạn", "Anh/Chị")',
         ))
 
@@ -1014,7 +1014,7 @@ def analyze_content(
     if cfg.brand_message.strip():
         ok = cfg.brand_message.lower().strip() in lower
         add(CheckResult(
-            id="brand-message", label="Thông điệp thương hiệu xuất hiện",
+            id="brand-message", label="Thông điệp thương hiệu",
             category="branding", status="pass" if ok else "fail",
             detail="Thông điệp đã có trong bài." if ok
                 else "Chưa thấy thông điệp thương hiệu trong bài.",
@@ -1025,7 +1025,7 @@ def analyze_content(
         ))
     else:
         add(_needs_config(
-            "brand-message", "Thông điệp thương hiệu xuất hiện",
+            "brand-message", "Thông điệp thương hiệu",
             "branding", "câu thông điệp thương hiệu",
         ))
 
@@ -1047,7 +1047,7 @@ def analyze_content(
         found_ad = [w for w in ad_words if w.strip() and w.lower() in lower]
         add(CheckResult(
             id="ad-forbidden-words",
-            label="Không dùng từ cấm quảng cáo",
+            label="Từ cấm quảng cáo",
             category="branding",
             status="pass" if not found_ad else "fail",
             detail=("Không phát hiện từ cấm." if not found_ad
@@ -1091,14 +1091,14 @@ def analyze_content(
             comp_issues.append(CheckIssue(kind="word", text=w, note="từ so sánh"))
         add(CheckResult(
             id="competitor-mention",
-            label="Không so sánh đối thủ thiếu nguồn",
+            label="So sánh đối thủ thiếu nguồn",
             category="branding", status=status_, detail=d, recommendation=rec,
             issues=comp_issues[:15],
         ))
     else:
         add(_needs_config(
             "competitor-mention",
-            "Không so sánh đối thủ thiếu nguồn",
+            "So sánh đối thủ thiếu nguồn",
             "branding", "danh sách tên đối thủ",
         ))
 
@@ -1109,7 +1109,7 @@ def analyze_content(
         ok = len(missing) == 0
         add(CheckResult(
             id="product-link-coverage",
-            label="Có link tới các sản phẩm nhắc trong bài",
+            label="Link sản phẩm",
             category="technical",
             status="pass" if ok else "warn",
             detail=(
@@ -1123,7 +1123,7 @@ def analyze_content(
     else:
         add(_needs_config(
             "product-link-coverage",
-            "Có link tới các sản phẩm nhắc trong bài",
+            "Link sản phẩm",
             "technical", "danh sách URL sản phẩm",
         ))
 
@@ -1266,7 +1266,7 @@ def analyze_content(
         ok = bool(good)
         add(CheckResult(
             id="cta-3s-quality",
-            label="CTA đạt 3S (Simple / Specific / Strong)",
+            label="Chất lượng CTA (3S)",
             category="branding",
             status="pass" if ok else "warn",
             detail=(
@@ -1281,7 +1281,7 @@ def analyze_content(
     else:
         add(CheckResult(
             id="cta-3s-quality",
-            label="CTA đạt 3S (Simple / Specific / Strong)",
+            label="Chất lượng CTA (3S)",
             category="branding",
             status="warn",
             detail="Chưa có câu CTA rõ ràng.",
@@ -1306,7 +1306,7 @@ def analyze_content(
         ok = conc_words >= 20 and (not has_cta_word or conc_words >= 60)
         add(CheckResult(
             id="conclusion-not-cta",
-            label="Kết bài không gộp chung CTA",
+            label="Tách kết bài & CTA",
             category="technical",
             status="pass" if ok else "warn",
             detail=(
@@ -1321,7 +1321,7 @@ def analyze_content(
     else:
         add(CheckResult(
             id="conclusion-not-cta",
-            label="Kết bài không gộp chung CTA",
+            label="Tách kết bài & CTA",
             category="technical",
             status="warn",
             detail="Chưa có heading kết bài để kiểm tra.",
